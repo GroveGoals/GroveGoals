@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroveGoals — Grow Your Goals Into Reality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest-deep:#0B3D2E;
+  --forest:#1E5631;
+  --sage:#7FB685;
+  --mint:#C9E8CE;
+  --canopy-light:#F5F9F3;
+  --gold:#E8B93E;
+  --ink:#122018;
+  --ink-soft:#4A5D52;
+  --white:#FFFFFF;
+  --line: rgba(11,61,46,0.12);
+  --shadow: 0 12px 32px rgba(11,61,46,0.12);
+  --radius: 18px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--canopy-light);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+.mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+a{ color:inherit; }
+button{ font-family:inherit; cursor:pointer; }
+img,svg{ display:block; max-width:100%; }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ---------- Layout shells ---------- */
+.wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+.page{ display:none; }
+.page.active{ display:block; }
+
+/* ---------- Nav ---------- */
+header.site-nav{
+  position:sticky; top:0; z-index:100;
+  background:rgba(245,249,243,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{ max-width:1180px; margin:0 auto; padding:16px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px;}
+.brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:700; font-size:1.25rem; color:var(--forest-deep); cursor:pointer; border:none; background:none; }
+.brand-mark{ width:34px; height:34px; }
+.nav-links{ display:flex; gap:28px; list-style:none; margin:0; padding:0; }
+.nav-links button{
+  background:none; border:none; font-size:0.95rem; font-weight:600; color:var(--ink-soft); padding:6px 2px; position:relative;
+}
+.nav-links button.active{ color:var(--forest-deep); }
+.nav-links button.active::after{ content:''; position:absolute; left:0; right:0; bottom:-4px; height:2px; background:var(--gold); border-radius:2px; }
+.nav-cta{ display:flex; align-items:center; gap:12px; }
+.hamburger{ display:none; flex-direction:column; gap:5px; background:none; border:none; padding:6px; }
+.hamburger span{ width:22px; height:2px; background:var(--forest-deep); border-radius:2px; transition:transform .2s ease, opacity .2s ease; }
+.hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity:0; }
+.hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.mobile-menu{ display:none; position:fixed; top:66px; left:0; right:0; bottom:0; background:var(--canopy-light); z-index:99; padding:20px 28px; overflow-y:auto; }
+.mobile-menu.open{ display:block; }
+.mobile-menu ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; }
+.mobile-menu button.mm-link{ width:100%; text-align:left; background:none; border:none; font-size:1.1rem; font-weight:700; color:var(--forest-deep); padding:16px 4px; border-bottom:1px solid var(--line); }
+@media (max-width:860px){
+  .nav-links{ display:none; }
+  .hamburger{ display:flex; }
+  /* The XP pill is redundant on mobile (shown on Dashboard + Profile) and,
+     combined with the auth button + hamburger, was wide enough to push the
+     hamburger off the edge of narrow screens — making it untappable.
+     !important because JS sets display:flex as an inline style on login. */
+  .pill-stat{ display:none !important; }
+}
+@media (max-width:420px){
+  .nav-inner{ padding:14px 16px; gap:8px; }
+  .brand{ font-size:1.05rem; gap:6px; }
+  .brand-mark{ width:28px; height:28px; }
+  #navAuthBtn{ padding:8px 12px; font-size:0.82rem; }
+}
+.pill-stat{
+  display:none;
+  align-items:center; gap:8px; background:var(--forest-deep); color:var(--mint);
+  padding:7px 14px; border-radius:999px; font-family:'JetBrains Mono',monospace; font-size:0.8rem;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border-radius:999px; padding:12px 24px; font-weight:700; font-size:0.95rem;
+  border:2px solid transparent; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:var(--forest-deep); color:var(--white); }
+.btn-primary:hover{ background:var(--forest); box-shadow:var(--shadow); }
+.btn-ghost{ background:transparent; color:var(--forest-deep); border-color:var(--forest-deep); }
+.btn-ghost:hover{ background:var(--forest-deep); color:var(--white); }
+.btn-gold{ background:var(--gold); color:var(--forest-deep); }
+.btn-gold:hover{ box-shadow:0 8px 20px rgba(232,185,62,0.4); }
+.btn-sm{ padding:9px 18px; font-size:0.85rem; }
+.btn[disabled]{ opacity:0.45; cursor:not-allowed; }
+
+/* ---------- Hero ---------- */
+.hero{ position:relative; overflow:hidden; padding:72px 0 40px; }
+.hero-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center; }
+.eyebrow{ font-family:'JetBrains Mono',monospace; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--forest); background:var(--mint); display:inline-block; padding:6px 12px; border-radius:999px; margin-bottom:18px; }
+.hero h1{ font-size:clamp(2.4rem, 5vw, 3.6rem); line-height:1.05; color:var(--forest-deep); }
+.hero h1 em{ font-style:italic; color:var(--sage); }
+.hero p.lede{ font-size:1.15rem; color:var(--ink-soft); margin:20px 0 28px; max-width:480px; }
+.hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+.tree-stage{ position:relative; aspect-ratio:1/1; }
+.tree-stage svg{ width:100%; height:100%; }
+.grow-path{ stroke-dasharray: 900; stroke-dashoffset:900; animation: grow 2.2s ease forwards; }
+.leaf{ opacity:0; transform-origin:center; animation: bloom .6s ease forwards; }
+@keyframes grow{ to{ stroke-dashoffset:0; } }
+@keyframes bloom{ from{ opacity:0; transform:scale(0);} to{ opacity:1; transform:scale(1);} }
+
+/* ---------- Sections generic ---------- */
+section.block{ padding:64px 0; }
+.section-head{ max-width:640px; margin:0 auto 40px; text-align:center; }
+.section-head .eyebrow{ margin-bottom:14px; }
+.section-head h2{ font-size:clamp(1.8rem,3.4vw,2.5rem); color:var(--forest-deep); }
+.section-head p{ color:var(--ink-soft); margin-top:12px; font-size:1.05rem; }
+
+/* How it works - branch timeline */
+.steps{ display:grid; grid-template-columns:repeat(5,1fr); gap:0; position:relative; }
+.steps::before{ content:''; position:absolute; top:26px; left:5%; right:5%; height:2px; background:var(--mint); }
+.step{ position:relative; text-align:center; padding:0 12px; }
+.step-num{
+  width:52px; height:52px; border-radius:50%; background:var(--white); border:2px solid var(--sage);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--forest-deep); position:relative; z-index:1;
+}
+.step h3{ font-size:1rem; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; margin-bottom:6px; }
+.step p{ font-size:0.88rem; color:var(--ink-soft); margin:0; }
+@media (max-width:900px){ .steps{ grid-template-columns:1fr 1fr; gap:32px 12px;} .steps::before{display:none;} }
+
+/* Popular goals */
+.goal-categories{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
+.cat-chip{ padding:9px 16px; border-radius:999px; border:1.5px solid var(--line); background:var(--white); font-size:0.85rem; font-weight:600; color:var(--ink-soft); }
+.cat-chip.active{ background:var(--forest-deep); color:var(--white); border-color:var(--forest-deep); }
+.goal-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.goal-card{
+  background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:20px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; transition:box-shadow .15s ease, transform .15s ease;
+}
+.goal-card:hover{ box-shadow:var(--shadow); transform:translateY(-2px); }
+.goal-card span{ font-weight:600; }
+.goal-card button{ background:var(--mint); border:none; border-radius:50%; width:34px; height:34px; color:var(--forest-deep); font-size:1.1rem; font-weight:700; flex-shrink:0; }
+@media (max-width:800px){ .goal-grid{ grid-template-columns:1fr 1fr; } }
+@media (max-width:520px){ .goal-grid{ grid-template-columns:1fr; } }
+
+/* Features */
+.feature-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+.feature-card{ background:var(--forest-deep); color:var(--canopy-light); border-radius:var(--radius); padding:26px 22px; }
+.feature-card:nth-child(2){ background:var(--forest); }
+.feature-card:nth-child(3){ background:#2D6A4F; }
+.feature-card:nth-child(4){ background:#3B7A57; }
+.feature-card .ficon{ font-size:1.6rem; margin-bottom:14px; display:block; }
+.feature-card h3{ font-size:1.02rem; font-family:'Plus Jakarta Sans'; font-weight:700; margin-bottom:8px; }
+.feature-card p{ font-size:0.87rem; opacity:0.85; margin:0; line-height:1.5; }
+@media (max-width:900px){ .feature-grid{ grid-template-columns:1fr 1fr; } }
+@media (max-width:520px){ .feature-grid{ grid-template-columns:1fr; } }
+
+/* Success stories */
+.story-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.story-card{ background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:24px; }
+.story-quote{ font-family:'Fraunces',serif; font-size:1.05rem; line-height:1.5; color:var(--forest-deep); margin-bottom:16px; }
+.story-who{ display:flex; align-items:center; gap:10px; font-size:0.85rem; color:var(--ink-soft); }
+.avatar-dot{ width:34px; height:34px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--forest-deep); font-family:'JetBrains Mono'; }
+@media (max-width:900px){ .story-grid{ grid-template-columns:1fr; } }
+
+/* Pricing */
+.price-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:760px; margin:0 auto; }
+.price-card{ background:var(--white); border:1.5px solid var(--line); border-radius:var(--radius); padding:32px 28px; }
+.price-card.premium{ border-color:var(--gold); background:var(--forest-deep); color:var(--canopy-light); position:relative; }
+.price-card.premium::before{ content:'MOST POPULAR'; position:absolute; top:-12px; right:24px; background:var(--gold); color:var(--forest-deep); font-family:'JetBrains Mono'; font-size:0.68rem; padding:5px 10px; border-radius:6px; font-weight:700; }
+.price-card h3{ font-size:1.2rem; margin-bottom:4px; }
+.price-amt{ font-family:'Fraunces',serif; font-size:2.4rem; margin:14px 0; }
+.price-card ul{ list-style:none; padding:0; margin:20px 0 26px; display:flex; flex-direction:column; gap:10px; font-size:0.92rem; }
+.price-card ul li::before{ content:'✓ '; color:var(--sage); font-weight:700; }
+.price-card.premium ul li::before{ color:var(--gold); }
+@media (max-width:700px){ .price-grid{ grid-template-columns:1fr; } }
+
+footer{ background:var(--forest-deep); color:var(--mint); padding:44px 0 28px; margin-top:20px; }
+footer .foot-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+footer .foot-brand{ font-family:'Fraunces',serif; font-weight:700; font-size:1.2rem; color:var(--white); }
+footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
+
+/* ---------- Generator page ---------- */
+.gen-shell{ max-width:640px; margin:0 auto; padding:60px 0 90px; }
+.gen-card{ background:var(--white); border-radius:24px; padding:40px; box-shadow:var(--shadow); border:1px solid var(--line); }
+.field{ margin-bottom:22px; }
+.field label{ display:block; font-weight:700; font-size:0.9rem; margin-bottom:8px; color:var(--forest-deep); }
+.field input, .field select{
+  width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line); font-size:0.95rem; font-family:inherit; background:var(--canopy-light);
+}
+.field input:focus, .field select:focus{ border-color:var(--sage); background:var(--white); }
+.password-field-wrap{ position:relative; }
+.password-field-wrap input{ padding-right:44px; }
+.password-toggle-btn{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  background:none; border:none; font-size:1.05rem; padding:8px; line-height:1;
+  opacity:0.6; border-radius:8px;
+}
+.password-toggle-btn:hover{ opacity:1; background:var(--mint); }
+.hours-row{ display:flex; align-items:center; gap:14px; }
+.hours-row input[type=range]{ flex:1; accent-color:var(--forest); }
+.hours-val{ font-family:'JetBrains Mono'; font-weight:700; color:var(--forest-deep); min-width:64px; text-align:right; }
+.gen-error{ color:#B3261E; font-size:0.85rem; margin-top:-14px; margin-bottom:16px; display:none; }
+
+/* Auth gate note */
+.auth-note{ background:var(--mint); border-radius:14px; padding:14px 18px; font-size:0.85rem; color:var(--forest-deep); margin-bottom:24px; display:flex; gap:10px; align-items:flex-start; }
+
+/* ---------- Dashboard ---------- */
+.dash-shell{ padding:48px 0 90px; }
+.dash-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; flex-wrap:wrap; gap:16px; }
+.dash-head h1{ font-size:2rem; color:var(--forest-deep); }
+.stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:36px; }
+.stat-card{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:20px; }
+.stat-card .label{ font-family:'JetBrains Mono'; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); }
+.stat-card .val{ font-family:'Fraunces',serif; font-size:2rem; color:var(--forest-deep); margin-top:6px; }
+.stat-card .val small{ font-size:1rem; font-family:'Plus Jakarta Sans'; }
+@media (max-width:800px){ .stat-row{ grid-template-columns:1fr 1fr; } }
+
+.dash-cols{ display:grid; grid-template-columns:1.4fr 1fr; gap:24px; align-items:start; }
+@media (max-width:900px){ .dash-cols{ grid-template-columns:1fr; } }
+.panel{ background:var(--white); border:1px solid var(--line); border-radius:20px; padding:24px; margin-bottom:20px; }
+.panel h2{ font-size:1.1rem; margin-bottom:16px; color:var(--forest-deep); }
+.goal-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--line); gap:12px; }
+.goal-row:last-child{ border-bottom:none; }
+.goal-row-main{ flex:1; }
+.goal-row-main .g-title{ font-weight:700; }
+.goal-row-main .g-meta{ font-size:0.8rem; color:var(--ink-soft); margin-top:2px; }
+.mini-bar{ height:6px; border-radius:4px; background:var(--mint); overflow:hidden; margin-top:8px; width:180px; }
+.mini-bar-fill{ height:100%; background:var(--sage); }
+.empty-state{ text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:0.92rem; }
+.achievement-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.ach{ background:var(--canopy-light); border:1px solid var(--line); border-radius:12px; padding:12px 8px; text-align:center; opacity:0.35; }
+.ach.unlocked{ opacity:1; border-color:var(--gold); background:#FFFBEE; }
+.ach .aicon{ font-size:1.4rem; }
+.ach .aname{ font-size:0.68rem; font-weight:700; margin-top:4px; color:var(--forest-deep); }
+.streak-box{ display:flex; align-items:center; gap:14px; }
+.streak-flame{ font-size:2.2rem; }
+.task-mini{ font-size:0.85rem; padding:8px 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; }
+.task-mini:last-child{ border:none; }
+
+/* ---------- Roadmap page ---------- */
+.roadmap-shell{ padding:48px 0 90px; }
+.rm-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; flex-wrap:wrap; gap:16px;}
+.rm-head h1{ font-size:1.9rem; color:var(--forest-deep); }
+.rm-meta{ color:var(--ink-soft); font-size:0.92rem; margin-top:6px; }
+.rm-progress-wrap{ margin:28px 0 40px; }
+.rm-progress-bar{ height:10px; background:var(--mint); border-radius:6px; overflow:hidden; }
+.rm-progress-fill{ height:100%; background:linear-gradient(90deg,var(--sage),var(--forest)); transition:width .4s ease; }
+.rm-progress-label{ display:flex; justify-content:space-between; font-family:'JetBrains Mono'; font-size:0.8rem; margin-top:8px; color:var(--ink-soft); }
+.trunk{ position:relative; padding-left:34px; }
+.trunk::before{ content:''; position:absolute; left:10px; top:6px; bottom:6px; width:3px; background:var(--mint); border-radius:2px; }
+.phase{ position:relative; margin-bottom:26px; }
+.phase::before{
+  content:''; position:absolute; left:-34px; top:4px; width:22px; height:22px; border-radius:50%;
+  background:var(--white); border:3px solid var(--sage);
+}
+.phase.done::before{ background:var(--sage); border-color:var(--forest); }
+.phase-card{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+.phase-top{ display:flex; justify-content:space-between; align-items:center; gap:12px; cursor:pointer; }
+.phase-top h3{ font-size:1.05rem; font-family:'Plus Jakarta Sans'; font-weight:700; }
+.phase-tag{ font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--sage); text-transform:uppercase; }
+.phase.done .phase-tag{ color:var(--forest); }
+.phase-tasks{ margin-top:16px; display:none; flex-direction:column; gap:10px; }
+.phase-tasks.open{ display:flex; }
+.task-item{ display:flex; align-items:center; gap:10px; font-size:0.92rem; padding:8px 10px; border-radius:10px; background:var(--canopy-light); }
+.task-item input{ width:17px; height:17px; accent-color:var(--forest); }
+.task-item.checked span{ text-decoration:line-through; color:var(--ink-soft); }
+.phase-resource{ display:flex; gap:8px; align-items:flex-start; font-size:0.82rem; color:var(--forest); background:var(--mint); padding:9px 12px; border-radius:10px; margin-top:2px; }
+.phase-videos{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+.video-loading{ font-size:0.8rem; color:var(--ink-soft); padding:6px 2px; }
+.video-card{ display:flex; gap:10px; align-items:center; background:var(--canopy-light); border:1px solid var(--line); border-radius:10px; padding:8px; text-decoration:none; color:inherit; transition:box-shadow .15s ease; }
+.video-card:hover{ box-shadow:0 4px 12px rgba(11,61,46,0.1); }
+.video-card img{ width:88px; height:50px; object-fit:cover; border-radius:6px; flex-shrink:0; background:var(--mint); }
+.video-card-info{ min-width:0; }
+.video-card-title{ font-size:0.82rem; font-weight:700; color:var(--forest-deep); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.video-card-channel{ font-size:0.72rem; color:var(--ink-soft); margin-top:2px; }
+.video-fallback-link{ font-size:0.82rem; color:var(--forest); background:var(--mint); padding:9px 12px; border-radius:10px; display:inline-block; text-decoration:none; font-weight:600; }
+.video-fallback-link:hover{ text-decoration:underline; }
+.chev{ font-size:0.8rem; color:var(--ink-soft); transition:transform .2s ease; }
+.phase-tasks.open ~ .chev, .phase-top.open .chev{ transform:rotate(90deg); }
+
+/* ---------- Profile ---------- */
+.profile-shell{ padding:48px 0 90px; max-width:760px; margin:0 auto; }
+.profile-card{ background:var(--white); border:1px solid var(--line); border-radius:22px; padding:34px; text-align:center; margin-bottom:24px; }
+.profile-avatar{ width:84px; height:84px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 16px; }
+.profile-card h2{ font-size:1.4rem; color:var(--forest-deep); }
+.profile-level{ font-family:'JetBrains Mono'; font-size:0.85rem; color:var(--ink-soft); margin-top:4px; }
+.xp-bar{ height:10px; background:var(--mint); border-radius:6px; overflow:hidden; margin:18px auto 6px; max-width:340px; }
+.xp-fill{ height:100%; background:var(--gold); }
+.profile-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.info-card{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:18px 20px; }
+.info-card .label{ font-family:'JetBrains Mono'; font-size:0.7rem; text-transform:uppercase; color:var(--ink-soft); }
+.info-card .value{ font-weight:700; margin-top:4px; }
+@media (max-width:600px){ .profile-grid{ grid-template-columns:1fr; } }
+
+/* ---------- Modal ---------- */
+.modal-overlay{ position:fixed; inset:0; background:rgba(11,61,46,0.55); display:none; align-items:center; justify-content:center; z-index:200; padding:20px; }
+.modal-overlay.open{ display:flex; }
+.modal-box{ background:var(--white); border-radius:22px; padding:36px; width:100%; max-width:420px; }
+.modal-box h2{ font-size:1.3rem; color:var(--forest-deep); margin-bottom:6px; }
+.modal-box p.sub{ color:var(--ink-soft); font-size:0.9rem; margin-bottom:22px; }
+.modal-close{ float:right; background:none; border:none; font-size:1.2rem; color:var(--ink-soft); }
+
+/* Toast */
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--forest-deep); color:var(--white); padding:14px 22px; border-radius:12px; font-size:0.9rem; opacity:0; transition:all .3s ease; z-index:300; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media (max-width:900px){
+  .hero-grid{ grid-template-columns:1fr; }
+  .tree-stage{ max-width:320px; margin:0 auto; }
+}
+
+/* ---------- Chatbot widget ---------- */
+.chat-launcher{
+  position:fixed; bottom:24px; right:24px; z-index:250;
+  width:60px; height:60px; border-radius:50%; background:var(--forest-deep); color:var(--mint);
+  border:none; font-size:1.5rem; box-shadow:0 10px 26px rgba(11,61,46,0.35);
+  display:flex; align-items:center; justify-content:center; transition:transform .15s ease;
+}
+.chat-launcher:hover{ transform:scale(1.06); }
+.chat-launcher .ping{ position:absolute; top:-2px; right:-2px; width:14px; height:14px; background:var(--gold); border-radius:50%; border:2px solid var(--canopy-light); }
+.chat-panel{
+  position:fixed; bottom:96px; right:24px; z-index:250; width:340px; max-width:calc(100vw - 40px);
+  background:var(--white); border-radius:20px; box-shadow:var(--shadow); border:1px solid var(--line);
+  display:none; flex-direction:column; overflow:hidden; height:460px; max-height:70vh;
+}
+.chat-panel.open{ display:flex; }
+.chat-head{ background:var(--forest-deep); color:var(--white); padding:16px 18px; display:flex; align-items:center; gap:10px; }
+.chat-head .ch-avatar{ width:32px; height:32px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+.chat-head .ch-title{ font-weight:700; font-size:0.95rem; }
+.chat-head .ch-sub{ font-size:0.7rem; opacity:0.75; }
+.chat-close{ margin-left:auto; background:none; border:none; color:var(--white); font-size:1rem; opacity:0.8; }
+.chat-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; background:var(--canopy-light); }
+.chat-msg{ max-width:82%; padding:10px 13px; border-radius:14px; font-size:0.87rem; line-height:1.45; white-space:pre-wrap; }
+.chat-msg.bot{ background:var(--white); border:1px solid var(--line); border-bottom-left-radius:4px; align-self:flex-start; }
+.chat-msg.user{ background:var(--forest-deep); color:var(--white); border-bottom-right-radius:4px; align-self:flex-end; }
+.chat-suggestions{ display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px; background:var(--canopy-light); }
+.chat-chip{ font-size:0.76rem; background:var(--white); border:1px solid var(--line); padding:6px 11px; border-radius:999px; color:var(--forest-deep); font-weight:600; }
+.chat-input-row{ display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); background:var(--white); }
+.chat-input-row input{ flex:1; border:1.5px solid var(--line); border-radius:999px; padding:10px 14px; font-family:inherit; font-size:0.87rem; }
+.chat-input-row button{ background:var(--forest-deep); color:var(--white); border:none; border-radius:50%; width:38px; height:38px; flex-shrink:0; }
+.chat-typing{ display:flex; gap:4px; align-items:center; padding:12px 16px !important; }
+.chat-typing::after{ content:'●●●'; letter-spacing:3px; color:var(--sage); animation: chatTypingPulse 1.2s infinite; font-size:0.7rem; }
+@keyframes chatTypingPulse{ 0%,100%{ opacity:0.3; } 50%{ opacity:1; } }
+
+/* ---------- Explore / library page ---------- */
+.explore-shell{ padding:56px 0 90px; }
+.explore-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-top:32px; }
+@media (max-width:800px){ .explore-grid{ grid-template-columns:1fr; } }
+.tpl-card{ background:var(--white); border:1px solid var(--line); border-radius:20px; padding:24px; }
+.tpl-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; cursor:pointer; }
+.tpl-card-head h3{ font-size:1.1rem; color:var(--forest-deep); }
+.tpl-card-head .eyebrow{ margin-bottom:6px; }
+.tpl-phase-list{ display:none; flex-direction:column; gap:10px; }
+.tpl-phase-list.open{ display:flex; }
+.tpl-phase{ background:var(--canopy-light); border-radius:12px; padding:12px 14px; }
+.tpl-phase .tp-name{ font-weight:700; font-size:0.9rem; color:var(--forest-deep); margin-bottom:6px; }
+.tpl-phase ul{ margin:0; padding-left:18px; font-size:0.82rem; color:var(--ink-soft); display:flex; flex-direction:column; gap:3px; }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <button class="brand" data-nav="home">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#1E5631"/><path d="M20 30V17" stroke="#C9E8CE" stroke-width="2.4" stroke-linecap="round"/><path d="M20 20c-4 0-7-3-7-7 4 0 7 3 7 7Z" fill="#7FB685"/><path d="M20 17c4 0 7-3 7-7-4 0-7 3-7 7Z" fill="#E8B93E"/></svg>
+      GroveGoals
+    </button>
+    <ul class="nav-links">
+      <li><button data-nav="home" class="active">Home</button></li>
+      <li><button data-nav="explore">Explore Roadmaps</button></li>
+      <li><button data-nav="generator">Goal Generator</button></li>
+      <li><button data-nav="dashboard">Dashboard</button></li>
+      <li><button data-nav="profile">Profile</button></li>
+    </ul>
+    <div class="nav-cta">
+      <div class="pill-stat" id="navXpPill"><span id="navLevelIcon">🌱</span> <span id="navLevelName">Seed</span> · <span id="navXpVal">0</span> XP<span id="navProBadge" style="display:none;color:var(--gold);"> · PRO</span></div>
+      <button class="btn btn-ghost btn-sm" id="navAuthBtn">Sign up</button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><button class="mm-link" data-nav="home">Home</button></li>
+      <li><button class="mm-link" data-nav="explore">Explore Roadmaps</button></li>
+      <li><button class="mm-link" data-nav="generator">Goal Generator</button></li>
+      <li><button class="mm-link" data-nav="dashboard">Dashboard</button></li>
+      <li><button class="mm-link" data-nav="profile">Profile</button></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== HOME ===================== -->
+<section class="page active" data-page="home">
+
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">AI-Guided Goal Planning</span>
+        <h1>Grow your <em>goals</em><br>into reality.</h1>
+        <p class="lede">Tell us the dream. GroveGoals plants a personalized roadmap, milestones, and daily tasks — then tracks every bit of progress as it grows.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-nav="generator">Create My Plan</button>
+          <button class="btn btn-ghost" data-scroll="how-it-works">See how it works</button>
+        </div>
+      </div>
+      <div class="tree-stage" aria-hidden="true">
+        <svg viewBox="0 0 300 300">
+          <path class="grow-path" d="M150 280 L150 140" stroke="#1E5631" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path class="grow-path" d="M150 200 L100 150" stroke="#1E5631" stroke-width="5" stroke-linecap="round" fill="none" style="animation-delay:.2s"/>
+          <path class="grow-path" d="M150 170 L205 130" stroke="#1E5631" stroke-width="5" stroke-linecap="round" fill="none" style="animation-delay:.3s"/>
+          <path class="grow-path" d="M150 140 L130 90" stroke="#1E5631" stroke-width="4" stroke-linecap="round" fill="none" style="animation-delay:.4s"/>
+          <path class="grow-path" d="M150 140 L178 85" stroke="#1E5631" stroke-width="4" stroke-linecap="round" fill="none" style="animation-delay:.45s"/>
+          <circle class="leaf" cx="100" cy="150" r="20" fill="#7FB685" style="animation-delay:1.2s"/>
+          <circle class="leaf" cx="205" cy="130" r="22" fill="#8FCB95" style="animation-delay:1.35s"/>
+          <circle class="leaf" cx="130" cy="90" r="24" fill="#C9E8CE" style="animation-delay:1.5s"/>
+          <circle class="leaf" cx="178" cy="85" r="26" fill="#9ED8A2" style="animation-delay:1.65s"/>
+          <circle class="leaf" cx="150" cy="60" r="20" fill="#E8B93E" style="animation-delay:1.8s"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <section class="block" id="how-it-works">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">The Process</span>
+        <h2>From dream to daily task in five steps</h2>
+        <p>Every roadmap follows the same sequence — because clarity comes from structure.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-num">01</div><h3>Create account</h3><p>Set up your free GroveGoals profile.</p></div>
+        <div class="step"><div class="step-num">02</div><h3>Answer 5 questions</h3><p>Goal, age, country, experience, hours/week.</p></div>
+        <div class="step"><div class="step-num">03</div><h3>We analyze it</h3><p>Your answers shape the plan's pace and depth.</p></div>
+        <div class="step"><div class="step-num">04</div><h3>Get your roadmap</h3><p>Milestones, tasks, resources, a timeline.</p></div>
+        <div class="step"><div class="step-num">05</div><h3>Track & earn</h3><p>Log progress, gain XP, level up.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="background:var(--white);">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Popular Goals</span>
+        <h2>Start with a goal others are growing</h2>
+        <p>Pick a category to pre-fill the generator, or write your own.</p>
+      </div>
+      <div class="goal-categories" id="catChips"></div>
+      <div class="goal-grid" id="goalGrid"></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Features</span>
+        <h2>Everything a roadmap needs</h2>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card"><span class="ficon">🗺️</span><h3>Personalized Roadmap</h3><p>Phases built around your goal, age, and available time.</p></div>
+        <div class="feature-card"><span class="ficon">✅</span><h3>Daily & Weekly Tasks</h3><p>Bite-sized actions so the goal never feels overwhelming.</p></div>
+        <div class="feature-card"><span class="ficon">📚</span><h3>Learning Resources</h3><p>Curated starting points for every phase of the plan.</p></div>
+        <div class="feature-card"><span class="ficon">📈</span><h3>Progress Tracker</h3><p>Watch your tree grow as milestones are completed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" style="background:var(--white);">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Success Stories</span>
+        <h2>Real goals, still growing</h2>
+      </div>
+      <div class="story-grid">
+        <div class="story-card"><p class="story-quote">"The roadmap turned 'become a developer' into a list I could actually start on Monday morning."</p><div class="story-who"><div class="avatar-dot">TE</div>Tomiwa E. — Software Engineer track</div></div>
+        <div class="story-card"><p class="story-quote">"I stopped guessing what to post. Month 1 alone got my channel branding actually finished."</p><div class="story-who"><div class="avatar-dot">AK</div>Amara K. — YouTuber track</div></div>
+        <div class="story-card"><p class="story-quote">"Seeing the streak counter kept me honest on weeks I wanted to skip studying."</p><div class="story-who"><div class="avatar-dot">DJ</div>Daniel J. — JAMB prep track</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Pricing</span>
+        <h2>Start free. Grow at your pace.</h2>
+        <p id="pricingNote" style="display:none;">🌱 Early access: every feature below is unlocked free for everyone right now.</p>
+      </div>
+      <div class="price-grid">
+        <div class="price-card">
+          <h3>Free</h3>
+          <div class="price-amt">$0</div>
+          <ul>
+            <li id="freeGoalLimitLine">Up to 3 active goals</li>
+            <li>Basic roadmap generation</li>
+            <li>Progress tracking</li>
+            <li>XP system</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%" data-nav="generator">Create My Plan</button>
+        </div>
+        <div class="price-card premium">
+          <h3>Premium</h3>
+          <div class="price-amt" id="premiumPriceAmt">$9<small style="font-size:1rem;">/mo</small></div>
+          <ul>
+            <li>Unlimited goals</li>
+            <li>AI Coach</li>
+            <li>Advanced analytics</li>
+            <li>Personalized recommendations</li>
+            <li>Unlimited roadmap regenerations</li>
+            <li>Priority support & goal reminders</li>
+          </ul>
+          <button class="btn btn-gold" style="width:100%" id="premiumCta">Go Premium</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ===================== GENERATOR ===================== -->
+<section class="page" data-page="generator">
+  <div class="wrap gen-shell">
+    <div class="section-head" style="margin-bottom:28px;">
+      <span class="eyebrow">Goal Generator</span>
+      <h2>Let's plant your roadmap</h2>
+      <p>Five quick questions. Takes under a minute.</p>
+    </div>
+    <div class="gen-card">
+      <div class="auth-note" id="genAuthNote">
+        🌱 <span>You'll need a free account to save your roadmap — we'll ask at the end, it takes 10 seconds.</span>
+      </div>
+      <form id="genForm">
+        <div class="field">
+          <label for="goalInput">What is your goal?</label>
+          <input type="text" id="goalInput" placeholder="e.g. Become a YouTuber" required>
+        </div>
+        <div class="field">
+          <label for="ageInput">How old are you?</label>
+          <input type="number" id="ageInput" min="8" max="100" placeholder="e.g. 17" required>
+        </div>
+        <div class="field">
+          <label for="countryInput">What country do you live in?</label>
+          <select id="countryInput" required>
+            <option value="" disabled selected>Select your country</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="expInput">What is your experience level?</label>
+          <select id="expInput">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="methodInput">How do you prefer to learn?</label>
+          <select id="methodInput">
+            <option value="Videos">Watching videos</option>
+            <option value="Reading">Reading articles & guides</option>
+            <option value="Practice">Hands-on practice</option>
+            <option value="Mentorship">Mentorship & community</option>
+            <option value="Mixed">A mix of everything</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>How many hours per week can you dedicate?</label>
+          <div class="hours-row">
+            <input type="range" id="hoursInput" min="1" max="40" value="10">
+            <span class="hours-val mono" id="hoursVal">10 hrs</span>
+          </div>
+        </div>
+        <div id="healthFieldsWrap" style="display:none;">
+          <div class="auth-note" style="background:var(--canopy-light);border:1px solid var(--line);">
+            🏃 <span>Looks like a health & fitness goal — add these so your roadmap can be tailored (optional).</span>
+          </div>
+          <div class="field" style="display:flex; gap:14px;">
+            <div style="flex:1;">
+              <label for="heightInput">Height (cm)</label>
+              <input type="number" id="heightInput" min="50" max="260" placeholder="e.g. 170">
+            </div>
+            <div style="flex:1;">
+              <label for="weightInput">Weight (kg)</label>
+              <input type="number" id="weightInput" min="15" max="400" placeholder="e.g. 65">
+            </div>
+          </div>
+        </div>
+        <p class="gen-error" id="genError">Please fill in your goal, age, and country first.</p>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Generate My Roadmap</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXPLORE / LIBRARY ===================== -->
+<section class="page" data-page="explore">
+  <div class="wrap explore-shell">
+    <div class="section-head" style="margin-bottom:0;">
+      <span class="eyebrow">Roadmap Library</span>
+      <h2>Every GroveGoals roadmap, browsable</h2>
+      <p>See exactly what you'll learn and do before you even create an account. Pick one to use it as your starting point.</p>
+    </div>
+    <div class="explore-grid" id="exploreGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== DASHBOARD ===================== -->
+<section class="page" data-page="dashboard">
+  <div class="wrap dash-shell">
+    <div class="dash-head">
+      <div>
+        <h1>Your Dashboard</h1>
+        <p class="mono" style="color:var(--ink-soft); font-size:0.85rem;">Welcome back<span id="dashName"></span>.</p>
+      </div>
+      <button class="btn btn-primary" data-nav="generator">+ New Goal</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Active Goals</div><div class="val" id="statActive">0</div></div>
+      <div class="stat-card"><div class="label">Completed Goals</div><div class="val" id="statCompleted">0</div></div>
+      <div class="stat-card"><div class="label">Total XP</div><div class="val" id="statXp">0</div></div>
+      <div class="stat-card"><div class="label">Day Streak</div><div class="val" id="statStreak">0 <small>🔥</small></div></div>
+    </div>
+
+    <div class="dash-cols">
+      <div>
+        <div class="panel">
+          <h2>Active Goals</h2>
+          <div id="activeGoalsList"><div class="empty-state">No active goals yet. Head to the Goal Generator to plant your first one 🌱</div></div>
+        </div>
+        <div class="panel">
+          <h2>Upcoming Tasks</h2>
+          <div id="upcomingTasks"><div class="empty-state">Tasks from your active goals will show up here.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h2>Streak</h2>
+          <div class="streak-box">
+            <div class="streak-flame">🔥</div>
+            <div>
+              <div style="font-family:'Fraunces',serif;font-size:1.6rem;color:var(--forest-deep);"><span id="streakNum">0</span> days</div>
+              <button class="btn btn-gold btn-sm" id="logTodayBtn" style="margin-top:8px;">Log today's progress</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Achievements</h2>
+          <div class="achievement-grid" id="achievementGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ROADMAP ===================== -->
+<section class="page" data-page="roadmap">
+  <div class="wrap roadmap-shell">
+    <button class="btn btn-ghost btn-sm" data-nav="dashboard" style="margin-bottom:20px;">← Back to Dashboard</button>
+    <div class="rm-head">
+      <div>
+        <h1 id="rmTitle">Goal</h1>
+        <p class="rm-meta" id="rmMeta"></p>
+      </div>
+      <div style="text-align:right;">
+        <div class="mono" style="font-size:0.8rem;color:var(--ink-soft);">Estimated Timeline</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--forest-deep);" id="rmTimeline"></div>
+      </div>
+    </div>
+    <div class="rm-progress-wrap">
+      <div class="rm-progress-bar"><div class="rm-progress-fill" id="rmProgressFill" style="width:0%"></div></div>
+      <div class="rm-progress-label"><span>0%</span><span id="rmProgressPct">0%</span><span>100%</span></div>
+    </div>
+    <div class="trunk" id="rmPhases"></div>
+  </div>
+</section>
+
+<!-- ===================== PROFILE ===================== -->
+<section class="page" data-page="profile">
+  <div class="wrap profile-shell">
+    <div class="profile-card">
+      <div class="profile-avatar" id="profileAvatar">🌱</div>
+      <h2 id="profileName">Guest Grower</h2>
+      <div class="profile-level"><span id="profileLevelName">Seed</span> · <span id="profileXpNum">0</span> XP <span id="profilePlanBadge" class="mono" style="color:var(--gold);"></span></div>
+      <div class="xp-bar"><div class="xp-fill" id="profileXpFill" style="width:0%"></div></div>
+      <p class="mono" style="font-size:0.75rem;color:var(--ink-soft);" id="profileXpToNext"></p>
+    </div>
+    <div class="profile-grid">
+      <div class="info-card"><div class="label">Age</div><div class="value" id="profAge">—</div></div>
+      <div class="info-card"><div class="label">Country</div><div class="value" id="profCountry">—</div></div>
+      <div class="info-card" id="profHeightCard" style="display:none;"><div class="label">Height</div><div class="value" id="profHeight">—</div></div>
+      <div class="info-card" id="profWeightCard" style="display:none;"><div class="label">Weight</div><div class="value" id="profWeight">—</div></div>
+      <div class="info-card"><div class="label">Active Goals</div><div class="value" id="profGoalsCount">0</div></div>
+      <div class="info-card"><div class="label">Achievements Unlocked</div><div class="value" id="profAchCount">0 / 8</div></div>
+    </div>
+    <button class="btn btn-ghost" id="logoutBtn" style="margin-top:24px;width:100%;">Log out</button>
+
+    <div class="panel" style="margin-top:28px; border-color:var(--line);">
+      <h2 style="color:var(--forest-deep);">Your data</h2>
+      <p style="font-size:0.85rem;color:var(--ink-soft); margin:-6px 0 16px;">
+        Everything above is saved to your account and stays there permanently —
+        it's only removed if you choose one of the options below.
+      </p>
+      <button class="btn btn-ghost btn-sm" id="eraseDataBtn" style="width:100%; margin-bottom:10px;">Erase my progress (keep account)</button>
+      <button class="btn btn-sm" id="deleteAccountBtn" style="width:100%; background:#B3261E; color:#fff;">Delete my account permanently</button>
+    </div>
+  </div>
+</section>
+
+<!-- Erase data confirm modal -->
+<div class="modal-overlay" id="eraseModal">
+  <div class="modal-box">
+    <button class="modal-close" data-modal-close-erase>✕</button>
+    <h2>Erase all your progress?</h2>
+    <p class="sub">This deletes every goal, your XP, streak, and achievements. Your account and login stay active. This can't be undone.</p>
+    <button class="btn btn-ghost" style="width:100%; margin-bottom:10px;" data-modal-close-erase>Cancel</button>
+    <button class="btn btn-sm" id="confirmEraseBtn" style="width:100%; background:#B3261E; color:#fff;">Yes, erase everything</button>
+  </div>
+</div>
+
+<!-- Delete account confirm modal -->
+<div class="modal-overlay" id="deleteAccountModal">
+  <div class="modal-box">
+    <button class="modal-close" data-modal-close-delete>✕</button>
+    <h2>Delete your account?</h2>
+    <p class="sub">This permanently deletes your account and everything in it — goals, XP, streaks, achievements. There's no undo. Enter your password to confirm.</p>
+    <form id="deleteAccountForm">
+      <div class="field">
+        <label>Password</label>
+        <div class="password-field-wrap">
+          <input type="password" id="deleteAccountPassword" required placeholder="Your current password">
+          <button type="button" class="password-toggle-btn" id="deleteAccountPasswordToggle" aria-label="Show password">👁️</button>
+        </div>
+      </div>
+      <p class="gen-error" id="deleteAccountError" style="display:none;"></p>
+      <button type="button" class="btn btn-ghost" style="width:100%; margin-bottom:10px;" data-modal-close-delete>Cancel</button>
+      <button type="submit" class="btn btn-sm" style="width:100%; background:#B3261E; color:#fff;">Permanently delete my account</button>
+    </form>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">🌳 GroveGoals</div>
+    <div class="mono" style="font-size:0.82rem;">Grow Your Goals Into Reality.</div>
+  </div>
+  <div class="wrap"><small>Your account, goals, XP, streak, and achievements are saved permanently to your account on the server. They're only ever removed if you erase your progress or delete your account from the Profile page.</small></div>
+</footer>
+
+<!-- Signup Modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <button class="modal-close" data-modal-close>✕</button>
+    <h2 id="authTitle">Create your free account</h2>
+    <p class="sub" id="authSub">Enter your details, then tap Create Account — you'll get full access right away.</p>
+    <form id="authForm">
+      <div class="field" id="authNameField"><label>Name</label><input type="text" id="authName" placeholder="Your name"></div>
+      <div class="field"><label>Email</label><input type="email" id="authEmail" required placeholder="you@example.com"></div>
+      <div class="field">
+        <label>Password</label>
+        <div class="password-field-wrap">
+          <input type="password" id="authPassword" required minlength="8" placeholder="At least 8 characters">
+          <button type="button" class="password-toggle-btn" id="authPasswordToggle" aria-label="Show password">👁️</button>
+        </div>
+      </div>
+      <p class="gen-error" id="authError" style="display:none;"></p>
+      <button type="submit" class="btn btn-primary" style="width:100%;" id="authSubmitBtn">Create Account</button>
+    </form>
+    <p class="mono" style="font-size:0.8rem;text-align:center;margin-top:18px;color:var(--ink-soft);">
+      <span id="authToggleText">Already have an account?</span>
+      <button type="button" id="authToggleBtn" style="background:none;border:none;color:var(--forest-deep);font-weight:700;text-decoration:underline;">Log in</button>
+    </p>
+    <p style="text-align:center;margin-top:8px;">
+      <button type="button" id="forgotPasswordBtn" class="mono" style="background:none;border:none;color:var(--ink-soft);font-size:0.78rem;text-decoration:underline;">Forgot password?</button>
+    </p>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal-box">
+    <button class="modal-close" data-modal-close-forgot>✕</button>
+    <h2>Reset your password</h2>
+    <p class="sub">Enter your email and we'll send reset instructions if an account exists for it.</p>
+    <form id="forgotForm">
+      <div class="field"><label>Email</label><input type="email" id="forgotEmail" required placeholder="you@example.com"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Send reset instructions</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Chatbot -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open GroveGoals assistant">
+  🌱<span class="ping"></span>
+</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="ch-avatar">🌳</div>
+    <div>
+      <div class="ch-title" id="chatTitle">Grove Assistant</div>
+      <div class="ch-sub" id="chatSub">Ask me what GroveGoals is about</div>
+    </div>
+    <button class="chat-close" id="chatCloseBtn">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-suggestions" id="chatSuggestions"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Type a message...">
+    <button id="chatSendBtn" aria-label="Send">➤</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ============ STATE ============ */
+const state = {
+  user: { name:'', email:'', age:null, country:'', loggedIn:false },
+  goals: [],
+  xp: 0,
+  streak: 0,
+  lastLogDate: null,
+  achievements: {},
+  nextGoalId: 1,
+  pendingGoalDraft: null
+};
+
+const LEVELS = [
+  { name:'Seed', icon:'🌱', min:0 },
+  { name:'Sprout', icon:'🌿', min:100 },
+  { name:'Sapling', icon:'🌳', min:300 },
+  { name:'Tree', icon:'🌲', min:700 },
+  { name:'Forest Master', icon:'👑', min:1500 }
+];
+
+const ACHIEVEMENTS = [
+  { id:'first_goal', name:'First Seed', icon:'🌱', test:s=>s.goals.length>=1 },
+  { id:'first_task', name:'First Step', icon:'✅', test:s=>s.goals.some(g=>g.phases.some(p=>p.tasks.some(t=>t.done))) },
+  { id:'first_phase', name:'Phase Done', icon:'🌿', test:s=>s.goals.some(g=>g.phases.some(p=>p.done)) },
+  { id:'level2', name:'Sprouted', icon:'🌿', test:s=>getLevel(s.xp).name!=='Seed' },
+  { id:'level4', name:'Full Tree', icon:'🌲', test:s=>['Tree','Forest Master'].includes(getLevel(s.xp).name) },
+  { id:'streak3', name:'3-Day Streak', icon:'🔥', test:s=>s.streak>=3 },
+  { id:'three_goals', name:'Triple Planted', icon:'🌳', test:s=>s.goals.length>=3 },
+  { id:'goal_complete', name:'Full Bloom', icon:'👑', test:s=>s.goals.some(g=>g.phases.every(p=>p.done)) }
+];
+
+/* ============ ROADMAP TEMPLATES ============ */
+const TEMPLATES = {
+  software: { match:['software engineer','coding','programmer','web developer','app developer','game developer','developer','coder','build an app','build a website'],
+    category:'Technology',
+    phases:[
+      {name:'Learn Computer Basics', tasks:['Get comfortable with your OS and file system','Learn keyboard shortcuts & typing speed basics','Understand how the internet & browsers work']},
+      {name:'Learn HTML & CSS', tasks:['Build 3 static pages from scratch','Learn Flexbox and Grid layout','Make one page fully mobile-responsive']},
+      {name:'Learn JavaScript', tasks:['Learn variables, functions, loops','Build a small interactive widget','Learn how to manipulate the DOM']},
+      {name:'Build Projects', tasks:['Build a personal to-do app','Build a small clone of a site you like','Push both projects to GitHub']},
+      {name:'Create Portfolio', tasks:['Write 3 project case studies','Design and publish a portfolio site','Get feedback from 2 developers']},
+      {name:'Apply For Jobs', tasks:['Polish your resume & LinkedIn','Apply to 5 roles per week','Practice 3 mock interviews']}
+    ]},
+  youtuber: { match:['youtuber','content creator','tiktok','influencer','podcast','instagram page','video editor','personal brand'],
+    category:'Content Creation',
+    phases:[
+      {name:'Learn the Craft', tasks:['Learn basic video editing','Study storytelling & hooks','Design channel branding & thumbnails']},
+      {name:'Publish Consistently', tasks:['Upload 8 videos this phase','Improve thumbnails based on CTR','Post consistently on one schedule']},
+      {name:'Study Your Data', tasks:['Review watch-time analytics weekly','Identify your best-performing topic','Double down on what works']},
+      {name:'Build Engagement', tasks:['Reply to every comment for a week','Run a poll or community post','Ask for feedback directly from viewers']},
+      {name:'Collaborate', tasks:['Reach out to 5 similar creators','Plan one collab video','Cross-promote each other\'s channels']},
+      {name:'Prepare Monetization', tasks:['Check platform monetization requirements','Set up your creator account','Pitch your first sponsor or apply for a program']}
+    ]},
+  business: { match:['business','entrepreneur','startup','online store','freelanc','investing','digital marketing','increase income'],
+    category:'Business',
+    phases:[
+      {name:'Validate the Idea', tasks:['Talk to 10 potential customers','Research 3 competitors','Write a one-page business plan']},
+      {name:'Build the Offer', tasks:['Define your product or service clearly','Set your pricing','Create a simple landing page']},
+      {name:'Get First Customers', tasks:['Reach out to 20 prospects','Post about your offer on 2 platforms','Close your first 3 sales']},
+      {name:'Set Up Operations', tasks:['Set up basic bookkeeping','Create a simple fulfillment process','Automate one repetitive task']},
+      {name:'Grow & Market', tasks:['Run one small marketing campaign','Collect testimonials from customers','Double down on your best channel']},
+      {name:'Scale', tasks:['Set a 90-day revenue goal','Delegate or automate one more task','Reinvest profit into growth']}
+    ]},
+  creative: { match:['graphic design','drawing','animation','write a book','author','photography','music production','singing','piano','guitar','ui/ux'],
+    category:'Creative Skills',
+    phases:[
+      {name:'Learn Fundamentals', tasks:['Study the core principles of the craft','Practice basic exercises daily','Collect 10 pieces of inspiration']},
+      {name:'Practice Deliberately', tasks:['Complete one guided project','Redo one earlier exercise better','Get feedback from someone skilled']},
+      {name:'Develop Your Style', tasks:['Create 3 original pieces','Identify what makes your work distinct','Study one artist/creator you admire']},
+      {name:'Build a Body of Work', tasks:['Complete 5 finished pieces','Organize them into a portfolio','Share your work publicly once a week']},
+      {name:'Get Feedback & Iterate', tasks:['Request critique from 3 people','Revise your weakest piece','Set a quality bar for future work']},
+      {name:'Share & Grow', tasks:['Publish your portfolio online','Apply for one opportunity or gig','Set your next skill milestone']}
+    ]},
+  language: { match:['learn english','learn french','learn spanish','learn japanese','learn chinese','learn german','communication skills','language'],
+    category:'Languages',
+    phases:[
+      {name:'Learn the Basics', tasks:['Learn 100 core vocabulary words','Learn basic sentence structure','Practice greetings & introductions']},
+      {name:'Build Listening & Speaking', tasks:['Watch 3 hours of content in the language','Speak out loud daily, even alone','Shadow a native speaker recording']},
+      {name:'Practice Conversation', tasks:['Have one real conversation this week','Learn 20 common phrases','Join a language exchange group']},
+      {name:'Expand Vocabulary', tasks:['Learn 200 more words by topic','Read one short article or story','Keep a vocabulary journal']},
+      {name:'Consume Native Content', tasks:['Watch a show without subtitles','Listen to a podcast in the language','Summarize what you understood']},
+      {name:'Test Your Fluency', tasks:['Have a 10-minute unscripted conversation','Take a level placement test','Set your next fluency goal']}
+    ]},
+  health: { match:['lose weight','gain muscle','exercise','fitness','healthy habits','sleep better','eat healthier','marathon','footballer','basketball','runner','swimming','athletic'],
+    category:'Health & Fitness',
+    phases:[
+      {name:'Build the Habit', tasks:['Schedule workout times in your week','Do 3 sessions this week','Track how you feel after each session']},
+      {name:'Learn the Basics', tasks:['Learn proper form for core movements','Learn basic nutrition principles','Plan your weekly meals once']},
+      {name:'Build Consistency', tasks:['Hit your planned sessions 3 weeks straight','Increase intensity or duration slightly','Track a measurable metric weekly']},
+      {name:'Push Progress', tasks:['Set a specific performance target','Adjust your plan based on results','Add one new challenge or drill']},
+      {name:'Recover & Sustain', tasks:['Prioritize sleep and rest days','Review what\'s working and drop what isn\'t','Prevent burnout by varying routine']},
+      {name:'Reach the Goal', tasks:['Do a final progress check-in','Celebrate the milestone reached','Set your next fitness goal']}
+    ]},
+  education: { match:['waec','neco','jamb','better grades','become a doctor','become a lawyer','become an engineer','become a nurse','pharmacist','become a teacher','scholarship','study abroad','learn mathematics','learn science','improve english','exam'],
+    category:'Education',
+    phases:[
+      {name:'Assess & Plan', tasks:['List all subjects/topics to cover','Get past questions or a syllabus','Build a realistic study calendar']},
+      {name:'Build Foundations', tasks:['Review core concepts for each subject','Fill in your weakest topic first','Create summary notes as you go']},
+      {name:'Practice Actively', tasks:['Complete timed practice questions','Review every mistake in detail','Track your score improvement']},
+      {name:'Deepen Weak Areas', tasks:['Identify your 3 weakest topics','Get extra help or resources for them','Retest yourself on those topics']},
+      {name:'Simulate the Real Thing', tasks:['Take one full mock exam','Practice under exam time pressure','Refine your exam-day strategy']},
+      {name:'Final Review', tasks:['Do a final round of quick revision','Rest well before the exam','Prepare everything needed for exam day']}
+    ]},
+  career: { match:['first job','promotion','change careers','professional portfolio','interview skills','resume','become a manager','career'],
+    category:'Career',
+    phases:[
+      {name:'Clarify the Target', tasks:['Define the exact role you want','Research required skills & qualifications','Identify 3 companies you\'d target']},
+      {name:'Close Skill Gaps', tasks:['List skills you\'re missing','Complete one course or certification','Apply the skill in a small project']},
+      {name:'Build Proof', tasks:['Update your resume with results','Build or update your portfolio/LinkedIn','Collect one reference or recommendation']},
+      {name:'Start Applying', tasks:['Apply to 5 roles this week','Tailor your resume per application','Follow up on applications after 1 week']},
+      {name:'Interview Prep', tasks:['Practice 3 mock interviews','Prepare stories using the STAR method','Research each company before interviewing']},
+      {name:'Land & Negotiate', tasks:['Evaluate any offers carefully','Negotiate salary or terms','Prepare a 30-60-90 day starting plan']}
+    ]},
+  financial: { match:['save for a car','save for university','emergency fund','budgeting','financially independent','save money'],
+    category:'Financial',
+    phases:[
+      {name:'Know Your Numbers', tasks:['Track all income and expenses for 2 weeks','Calculate your savings target','Identify 3 areas to cut back']},
+      {name:'Build a Budget', tasks:['Create a simple monthly budget','Automate a fixed savings transfer','Pick a tool to track spending']},
+      {name:'Build the Habit', tasks:['Stick to budget for one full month','Review and adjust categories','Avoid one unplanned purchase']},
+      {name:'Grow the Fund', tasks:['Find one way to increase income','Increase your savings rate slightly','Recheck progress vs. your target']},
+      {name:'Protect the Progress', tasks:['Separate savings into their own account','Set up a small buffer for emergencies','Avoid dipping into savings for non-essentials']},
+      {name:'Reach the Target', tasks:['Do a final savings check-in','Celebrate hitting the target','Set your next financial goal']}
+    ]},
+  life: { match:['confidence','public speaking','procrastinat','time management','discipline','productive','leadership','self-confidence'],
+    category:'Life Goals',
+    phases:[
+      {name:'Get Honest', tasks:['Identify exactly where this holds you back','Write down 3 recent examples','Set one clear, specific target']},
+      {name:'Build Small Wins', tasks:['Do one small brave action this week','Reflect on how it felt afterward','Repeat with slightly bigger actions']},
+      {name:'Build a System', tasks:['Create a simple daily routine around it','Remove one obstacle in your environment','Track your consistency daily']},
+      {name:'Get Feedback', tasks:['Ask someone you trust for honest feedback','Adjust your approach based on it','Notice what\'s actually changing']},
+      {name:'Stress-Test It', tasks:['Put yourself in a harder situation','Handle a setback without quitting','Reflect on what you learned']},
+      {name:'Make It Permanent', tasks:['Review your progress over the full period','Lock in the habit long-term','Set your next personal growth goal']}
+    ]}
+};
+const GENERIC_TEMPLATE = { category:'General',
+  phases:[
+    {name:'Define the Goal', tasks:['Write exactly what success looks like','Set a target date','List 3 obstacles you expect']},
+    {name:'Research & Plan', tasks:['Find 3 credible resources on this goal','Break the goal into smaller parts','Build a rough weekly schedule']},
+    {name:'Build the Habit', tasks:['Take the first small action today','Repeat consistently for one week','Track progress daily']},
+    {name:'Practice & Improve', tasks:['Review what\'s working and what isn\'t','Ask for feedback from someone ahead of you','Adjust your approach']},
+    {name:'Push Further', tasks:['Take on a harder version of the task','Measure progress against your original goal','Solve your biggest current blocker']},
+    {name:'Reach the Goal', tasks:['Do a final progress review','Celebrate what you\'ve achieved','Set your next goal']}
+  ]};
+
+const POPULAR_CATEGORIES = {
+  'Education':['Pass WAEC','Pass JAMB','Become a doctor','Study abroad'],
+  'Technology':['Become a software engineer','Learn cybersecurity','Build an app','Learn data science'],
+  'Business':['Start a business','Become an entrepreneur','Start freelancing'],
+  'Content Creation':['Become a YouTuber','Grow an Instagram page','Start a podcast'],
+  'Creative Skills':['Learn graphic design','Write a book','Learn music production'],
+  'Health & Fitness':['Lose weight safely','Gain muscle','Run a marathon'],
+  'Life Goals':['Improve public speaking','Build discipline','Stop procrastinating'],
+  'Career':['Get my first job','Change careers','Get a promotion']
+};
+
+/* ============ HELPERS ============ */
+function getLevel(xp){
+  let cur = LEVELS[0];
+  for(const l of LEVELS){ if(xp>=l.min) cur=l; }
+  return cur;
+}
+function getNextLevel(xp){
+  const cur=getLevel(xp);
+  const idx=LEVELS.findIndex(l=>l.name===cur.name);
+  return LEVELS[idx+1]||null;
+}
+function matchTemplate(goalText){
+  const g = goalText.toLowerCase();
+  for(const key in TEMPLATES){
+    const t = TEMPLATES[key];
+    if(t.match.some(m=>g.includes(m))) return t;
+  }
+  return GENERIC_TEMPLATE;
+}
+function estimateTimeline(hoursPerWeek, experience){
+  let baseWeeks = 24; // 6 phases * ~4 weeks
+  if(hoursPerWeek>=20) baseWeeks = 12;
+  else if(hoursPerWeek>=10) baseWeeks = 18;
+  else if(hoursPerWeek>=5) baseWeeks = 24;
+  else baseWeeks = 32;
+  if(experience==='Intermediate') baseWeeks = Math.round(baseWeeks*0.8);
+  if(experience==='Advanced') baseWeeks = Math.round(baseWeeks*0.6);
+  const months = Math.max(1, Math.round(baseWeeks/4));
+  return { weeks:baseWeeks, months, label: months===1 ? '~4 weeks' : `~${months} months` };
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function todayStr(){ return new Date().toDateString(); }
+
+/* ============ NAV ============ */
+const pages = document.querySelectorAll('.page');
+const navBtns = document.querySelectorAll('[data-nav]');
+function goTo(pageName, opts){
+  pages.forEach(p=>p.classList.toggle('active', p.dataset.page===pageName));
+  document.querySelectorAll('.nav-links button, .mobile-menu button').forEach(b=>b.classList.toggle('active', b.dataset.nav===pageName));
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
+  if(pageName==='dashboard') renderDashboard();
+  if(pageName==='profile') renderProfile();
+  if(pageName==='explore') renderExplore();
+  if(pageName==='roadmap' && opts && opts.goalId) renderRoadmap(opts.goalId);
+  closeMobileMenu();
+}
+navBtns.forEach(btn=>btn.addEventListener('click', ()=>{
+  const target = btn.dataset.nav;
+  if((target==='dashboard'||target==='profile') && !state.user.loggedIn){
+    openAuthModal(()=>goTo(target));
+    return;
+  }
+  goTo(target);
+}));
+/* Mobile hamburger menu */
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+function closeMobileMenu(){
+  mobileMenu.classList.remove('open');
+  hamburgerBtn.classList.remove('open');
+  hamburgerBtn.setAttribute('aria-expanded','false');
+}
+hamburgerBtn.addEventListener('click', ()=>{
+  const isOpen = mobileMenu.classList.toggle('open');
+  hamburgerBtn.classList.toggle('open', isOpen);
+  hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+});
+document.querySelectorAll('[data-scroll]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById(btn.dataset.scroll).scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* ============ AUTH: backend integration ============ */
+// Same-origin by default (this file is served by the Flask app at "/").
+// If you ever host the frontend on a different domain than the backend,
+// set this to the full API origin, e.g. 'https://api.grovegoals.com',
+// and see the backend README for the extra CORS/cookie config that needs.
+const API_BASE = '';
+
+let csrfToken = null;
+async function fetchCsrfToken(){
+  try{
+    const res = await fetch(API_BASE + '/csrf-token', { credentials:'include' });
+    const data = await res.json();
+    csrfToken = data.csrf_token;
+  }catch(err){ /* backend unreachable — protected calls will fail loudly, which is correct */ }
+  return csrfToken;
+}
+async function apiPost(path, body){
+  if(!csrfToken) await fetchCsrfToken();
+  return fetch(API_BASE + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken || '' },
+    credentials: 'include',
+    body: body !== undefined ? JSON.stringify(body) : undefined
+  });
+}
+
+/* ---- Persistent state: save to / load from the account on the backend ---- */
+function serializeState(){
+  return {
+    goals: state.goals,
+    xp: state.xp,
+    streak: state.streak,
+    lastLogDate: state.lastLogDate,
+    achievements: state.achievements,
+    isPremium: !!state.user.isPremium,
+    age: state.user.age || null,
+    country: state.user.country || '',
+    height: state.user.height || null,
+    weight: state.user.weight || null
+  };
+}
+let _saveStateTimer = null;
+function scheduleSaveState(){
+  if(!state.user.loggedIn) return;
+  clearTimeout(_saveStateTimer);
+  _saveStateTimer = setTimeout(saveStateNow, 500);
+}
+async function saveStateNow(){
+  if(!state.user.loggedIn) return;
+  try{
+    const res = await apiPost('/api/state', serializeState());
+    if(!res.ok){ console.warn('Could not save progress to your account.'); }
+  }catch(err){ console.warn('Could not reach the server to save progress.'); }
+}
+async function loadStateFromServer(){
+  try{
+    const res = await fetch(API_BASE + '/api/state', { credentials:'include' });
+    if(!res.ok) return false;
+    const data = await res.json();
+    state.goals = Array.isArray(data.goals) ? data.goals : [];
+    state.xp = data.xp || 0;
+    state.streak = data.streak || 0;
+    state.lastLogDate = data.lastLogDate || null;
+    state.achievements = data.achievements || {};
+    state.user.isPremium = !!data.isPremium;
+    state.user.age = data.age || null;
+    state.user.country = data.country || '';
+    state.user.height = data.height || null;
+    state.user.weight = data.weight || null;
+    state.nextGoalId = state.goals.reduce((max,g)=>Math.max(max, (g.id||0)+1), 1);
+    return true;
+  }catch(err){
+    console.warn('Could not load saved progress from the server.');
+    return false;
+  }
+}
+
+const authModal = document.getElementById('authModal');
+const forgotModal = document.getElementById('forgotModal');
+let authCallback = null;
+let authMode = 'signup'; // 'signup' | 'login'
+
+function setAuthMode(mode){
+  authMode = mode;
+  const isSignup = mode==='signup';
+  document.getElementById('authTitle').textContent = isSignup ? 'Create your free account' : 'Log in to GroveGoals';
+  document.getElementById('authSub').textContent = isSignup
+    ? "Enter your details, then tap Create Account — you'll get full access right away."
+    : 'Welcome back — enter your email and password.';
+  document.getElementById('authNameField').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('authSubmitBtn').textContent = isSignup ? 'Create Account' : 'Log In';
+  document.getElementById('authToggleText').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('authToggleBtn').textContent = isSignup ? 'Log in' : 'Sign up';
+  document.getElementById('authError').style.display = 'none';
+}
+document.getElementById('authToggleBtn').addEventListener('click', ()=>setAuthMode(authMode==='signup' ? 'login' : 'signup'));
+
+function openAuthModal(cb){
+  authCallback = cb || null;
+  setAuthMode('signup');
+  authModal.classList.add('open');
+  document.getElementById('authEmail').focus();
+}
+function closeAuthModal(){ authModal.classList.remove('open'); }
+document.querySelectorAll('[data-modal-open]').forEach(b=>b.addEventListener('click', ()=>openAuthModal()));
+document.getElementById('navAuthBtn').addEventListener('click', ()=>{
+  if(state.user.loggedIn) goTo('profile'); else openAuthModal();
+});
+document.querySelectorAll('[data-modal-close]').forEach(b=>b.addEventListener('click', closeAuthModal));
+authModal.addEventListener('click', e=>{ if(e.target===authModal) closeAuthModal(); });
+
+function showAuthError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+/* ---- Password show/hide toggles ---- */
+function wirePasswordToggle(inputId, btnId){
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if(!input || !btn) return;
+  btn.addEventListener('click', ()=>{
+    const showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    btn.textContent = showing ? '👁️' : '🙈';
+    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+  });
+}
+wirePasswordToggle('authPassword', 'authPasswordToggle');
+wirePasswordToggle('deleteAccountPassword', 'deleteAccountPasswordToggle');
+
+async function completeLogin(name, email){
+  state.user.name = name || email.split('@')[0];
+  state.user.email = email;
+  state.user.loggedIn = true;
+  document.getElementById('navAuthBtn').textContent = state.user.name.split(' ')[0];
+  document.getElementById('navXpPill').style.display='flex';
+  document.getElementById('genAuthNote').style.display='none';
+  closeAuthModal();
+  resetChatForAuthChange();
+
+  await fetchCsrfToken();
+  await loadStateFromServer();
+  syncNavStats();
+
+  if(state.pendingGoalDraft){
+    commitGoal(state.pendingGoalDraft);
+    state.pendingGoalDraft = null;
+    goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+  } else if(state.pendingPremiumUpgrade){
+    state.pendingPremiumUpgrade = false;
+    upgradeToPremium();
+  } else if(authCallback){
+    authCallback();
+  }
+  authCallback = null;
+}
+
+document.getElementById('authForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const name = document.getElementById('authName').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const submitBtn = document.getElementById('authSubmitBtn');
+  document.getElementById('authError').style.display = 'none';
+
+  if(!email || !password){ showAuthError('Please fill in email and password.'); return; }
+
+  const endpoint = authMode === 'signup' ? '/signup' : '/login';
+  const payload = authMode === 'signup' ? { name, email, password } : { email, password };
+
+  submitBtn.disabled = true;
+  const originalLabel = submitBtn.textContent;
+  submitBtn.textContent = authMode === 'signup' ? 'Creating account...' : 'Logging in...';
+
+  try{
+    const res = await fetch(API_BASE + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!res.ok){
+      showAuthError(data.error || 'Something went wrong. Please try again.');
+      return;
+    }
+    toast(authMode==='signup'
+      ? `Welcome to GroveGoals, ${(data.name || data.email).split(' ')[0]} 🌱`
+      : `Welcome back, ${(data.name || data.email).split(' ')[0]} 👋`);
+    await completeLogin(data.name, data.email);
+  } catch(err){
+    showAuthError('Could not reach the server. Is the backend running?');
+  } finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+
+/* ---- Forgot password ---- */
+document.getElementById('forgotPasswordBtn').addEventListener('click', ()=>{
+  closeAuthModal();
+  forgotModal.classList.add('open');
+  document.getElementById('forgotEmail').focus();
+});
+document.querySelectorAll('[data-modal-close-forgot]').forEach(b=>b.addEventListener('click', ()=>forgotModal.classList.remove('open')));
+forgotModal.addEventListener('click', e=>{ if(e.target===forgotModal) forgotModal.classList.remove('open'); });
+
+document.getElementById('forgotForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true;
+  try{
+    const res = await fetch(API_BASE + '/request-password-reset', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'include', body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    forgotModal.classList.remove('open');
+    toast(data.message || "If an account exists, we've sent reset instructions.");
+  } catch(err){
+    toast('Could not reach the server. Is the backend running?');
+  } finally{
+    btn.disabled = false;
+  }
+});
+
+/* ---- Logout ---- */
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  try{
+    await apiPost('/logout');
+  } catch(err){ /* even if the network call fails, clear local state below */ }
+  state.user = { name:'', email:'', age:null, country:'', loggedIn:false };
+  state.goals = [];
+  state.xp = 0;
+  state.streak = 0;
+  state.lastLogDate = null;
+  state.achievements = {};
+  csrfToken = null;
+  resetChatForAuthChange();
+  document.getElementById('navAuthBtn').textContent = 'Sign up';
+  document.getElementById('navXpPill').style.display='none';
+  document.getElementById('genAuthNote').style.display='flex';
+  toast('Logged out. Come back soon 🌱');
+  goTo('home');
+});
+
+/* ---- Erase my data (keep account) ---- */
+const eraseModal = document.getElementById('eraseModal');
+document.getElementById('eraseDataBtn').addEventListener('click', ()=>eraseModal.classList.add('open'));
+document.querySelectorAll('[data-modal-close-erase]').forEach(b=>b.addEventListener('click', ()=>eraseModal.classList.remove('open')));
+eraseModal.addEventListener('click', e=>{ if(e.target===eraseModal) eraseModal.classList.remove('open'); });
+
+document.getElementById('confirmEraseBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('confirmEraseBtn');
+  btn.disabled = true;
+  try{
+    const res = await apiPost('/api/reset-progress');
+    const data = await res.json();
+    if(!res.ok){ toast(data.error || 'Could not erase your data.'); return; }
+    state.goals = [];
+    state.xp = 0;
+    state.streak = 0;
+    state.lastLogDate = null;
+    state.achievements = {};
+    eraseModal.classList.remove('open');
+    toast('All progress erased. Your account is still active. 🌱');
+    syncNavStats();
+    renderProfile();
+  } catch(err){
+    toast('Could not reach the server.');
+  } finally{
+    btn.disabled = false;
+  }
+});
+
+/* ---- Delete account permanently ---- */
+const deleteAccountModal = document.getElementById('deleteAccountModal');
+document.getElementById('deleteAccountBtn').addEventListener('click', ()=>{
+  document.getElementById('deleteAccountError').style.display='none';
+  document.getElementById('deleteAccountPassword').value='';
+  deleteAccountModal.classList.add('open');
+});
+document.querySelectorAll('[data-modal-close-delete]').forEach(b=>b.addEventListener('click', ()=>deleteAccountModal.classList.remove('open')));
+deleteAccountModal.addEventListener('click', e=>{ if(e.target===deleteAccountModal) deleteAccountModal.classList.remove('open'); });
+
+document.getElementById('deleteAccountForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const password = document.getElementById('deleteAccountPassword').value;
+  const submitBtn = e.target.querySelector('button[type=submit]');
+  const errEl = document.getElementById('deleteAccountError');
+  errEl.style.display='none';
+  submitBtn.disabled = true;
+  try{
+    const res = await apiPost('/api/delete-account', { password });
+    const data = await res.json();
+    if(!res.ok){
+      errEl.textContent = data.error || 'Could not delete your account.';
+      errEl.style.display='block';
+      return;
+    }
+    deleteAccountModal.classList.remove('open');
+    state.user = { name:'', email:'', age:null, country:'', loggedIn:false };
+    state.goals = [];
+    state.xp = 0;
+    state.streak = 0;
+    state.lastLogDate = null;
+    state.achievements = {};
+    csrfToken = null;
+    resetChatForAuthChange();
+    document.getElementById('navAuthBtn').textContent = 'Sign up';
+    document.getElementById('navXpPill').style.display='none';
+    document.getElementById('genAuthNote').style.display='flex';
+    toast('Your account and all data have been permanently deleted.');
+    goTo('home');
+  } catch(err){
+    errEl.textContent = 'Could not reach the server.';
+    errEl.style.display='block';
+  } finally{
+    submitBtn.disabled = false;
+  }
+});
+
+/* ---- Restore session on page load (server-side session cookie) ---- */
+(async function restoreSession(){
+  try{
+    const res = await fetch(API_BASE + '/profile', { credentials:'include' });
+    if(res.ok){
+      const data = await res.json();
+      await completeLogin(data.name, data.email);
+    }
+  } catch(err){
+    // Backend not running / not reachable — app still works, just logged out.
+  }
+})();
+
+/* ============ HOME: category chips + goal grid ============ */
+const catChipsEl = document.getElementById('catChips');
+const goalGridEl = document.getElementById('goalGrid');
+let activeCategory = 'Education';
+function renderCategoryChips(){
+  catChipsEl.innerHTML='';
+  Object.keys(POPULAR_CATEGORIES).forEach(cat=>{
+    const chip=document.createElement('button');
+    chip.className='cat-chip'+(cat===activeCategory?' active':'');
+    chip.textContent=cat;
+    chip.addEventListener('click', ()=>{ activeCategory=cat; renderCategoryChips(); renderGoalGrid(); });
+    catChipsEl.appendChild(chip);
+  });
+}
+function renderGoalGrid(){
+  goalGridEl.innerHTML='';
+  POPULAR_CATEGORIES[activeCategory].forEach(goal=>{
+    const card=document.createElement('div');
+    card.className='goal-card';
+    card.innerHTML = `<span>${goal}</span><button aria-label="Use this goal">→</button>`;
+    card.querySelector('button').addEventListener('click', ()=>{
+      goTo('generator');
+      document.getElementById('goalInput').value = goal;
+      document.getElementById('goalInput').focus();
+    });
+    goalGridEl.appendChild(card);
+  });
+}
+renderCategoryChips();
+renderGoalGrid();
+
+/* ============ GENERATOR FORM ============ */
+const COUNTRIES = ["Afghanistan","Albania","Algeria","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahrain","Bangladesh","Belarus","Belgium","Benin","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Chad","Chile","China","Colombia","Congo (DRC)","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Denmark","Dominican Republic","Ecuador","Egypt","El Salvador","Estonia","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Guatemala","Guinea","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Liberia","Libya","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Mali","Malta","Mauritania","Mauritius","Mexico","Moldova","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saudi Arabia","Senegal","Serbia","Sierra Leone","Singapore","Slovakia","Slovenia","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Togo","Tunisia","Turkey","Turkmenistan","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe","Other"];
+const countrySelect = document.getElementById('countryInput');
+COUNTRIES.forEach(c=>{
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  countrySelect.appendChild(opt);
+});
+
+const hoursInput = document.getElementById('hoursInput');
+const hoursVal = document.getElementById('hoursVal');
+hoursInput.addEventListener('input', ()=>{ hoursVal.textContent = hoursInput.value + ' hrs'; });
+
+const goalInputEl = document.getElementById('goalInput');
+const healthFieldsWrap = document.getElementById('healthFieldsWrap');
+goalInputEl.addEventListener('input', ()=>{
+  const isHealth = TEMPLATES.health.match.some(m=>goalInputEl.value.toLowerCase().includes(m));
+  healthFieldsWrap.style.display = isHealth ? 'block' : 'none';
+});
+
+document.getElementById('genForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const goal = document.getElementById('goalInput').value.trim();
+  const age = document.getElementById('ageInput').value.trim();
+  const country = document.getElementById('countryInput').value.trim();
+  const experience = document.getElementById('expInput').value;
+  const method = document.getElementById('methodInput').value;
+  const hours = parseInt(hoursInput.value,10);
+  const height = document.getElementById('heightInput').value.trim();
+  const weight = document.getElementById('weightInput').value.trim();
+  const errEl = document.getElementById('genError');
+  if(!goal || !age || !country){
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.display='none';
+
+  const draft = { goal, age, country, experience, method, hours, height, weight };
+
+  if(!state.user.loggedIn){
+    state.pendingGoalDraft = draft;
+    openAuthModal();
+    return;
+  }
+  commitGoal(draft);
+  goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+});
+
+// Set to true to re-enable the free-plan goal cap + premium upsell gating.
+// Currently OFF: everything is unlocked for everyone for the moment.
+const PREMIUM_GATING_ENABLED = false;
+const FREE_GOAL_LIMIT = 3;
+function activeGoalCount(){ return state.goals.filter(g=>!g.phases.every(p=>p.done)).length; }
+
+function commitGoal(draft){
+  if(PREMIUM_GATING_ENABLED && !state.user.isPremium && activeGoalCount() >= FREE_GOAL_LIMIT){
+    toast(`Free plan allows up to ${FREE_GOAL_LIMIT} active goals. Upgrade to Premium for unlimited goals.`);
+    goTo('home');
+    setTimeout(()=>document.getElementById('premiumCta').scrollIntoView({behavior:'smooth', block:'center'}), 400);
+    return;
+  }
+  if(!state.user.age) state.user.age = draft.age;
+  if(!state.user.country) state.user.country = draft.country;
+  if(draft.height) state.user.height = draft.height;
+  if(draft.weight) state.user.weight = draft.weight;
+  const tpl = matchTemplate(draft.goal);
+  const timeline = estimateTimeline(draft.hours, draft.experience);
+  const method = draft.method || 'Mixed';
+  const goal = {
+    id: state.nextGoalId++,
+    title: draft.goal,
+    category: tpl.category,
+    experience: draft.experience,
+    method: method,
+    hours: draft.hours,
+    height: draft.height || null,
+    weight: draft.weight || null,
+    timeline,
+    createdAt: Date.now(),
+    phases: tpl.phases.map(p=>({
+      name: p.name,
+      done:false,
+      tasks: p.tasks.map(t=>({ text:t, done:false }))
+    }))
+  };
+  state.goals.push(goal);
+  checkAchievements();
+  syncNavStats();
+  toast(`Roadmap planted for "${draft.goal}" 🌳`);
+  document.getElementById('genForm').reset();
+  hoursInput.value=10; hoursVal.textContent='10 hrs';
+  healthFieldsWrap.style.display='none';
+  scheduleSaveState();
+}
+
+function getResourceLine(method, phaseName){
+  const map = {
+    Videos: `Watch a focused video tutorial on "${phaseName}"`,
+    Reading: `Read a guide or article covering "${phaseName}"`,
+    Practice: `Do a hands-on exercise or mini-project for "${phaseName}"`,
+    Mentorship: `Ask a mentor or community thread for guidance on "${phaseName}"`,
+    Mixed: `Combine a short video, a quick read, and hands-on practice for "${phaseName}"`
+  };
+  return map[method] || map.Mixed;
+}
+
+/* ============ XP / TASK LOGIC ============ */
+function addXp(amount){
+  state.xp = Math.max(0, state.xp+amount);
+  syncNavStats();
+  scheduleSaveState();
+}
+function toggleTask(goalId, phaseIdx, taskIdx){
+  const goal = state.goals.find(g=>g.id===goalId);
+  const phase = goal.phases[phaseIdx];
+  const task = phase.tasks[taskIdx];
+  const wasPhaseDone = phase.done;
+  task.done = !task.done;
+  addXp(task.done ? 10 : -10);
+  const allDone = phase.tasks.every(t=>t.done);
+  phase.done = allDone;
+  if(allDone && !wasPhaseDone){
+    addXp(100);
+    toast(`Phase complete: "${phase.name}" (+100 XP)`);
+  } else if(!allDone && wasPhaseDone){
+    addXp(-100);
+  }
+  const goalFullyDone = goal.phases.every(p=>p.done);
+  if(goalFullyDone && !goal._completedFlag){
+    goal._completedFlag = true;
+    addXp(500);
+    toast(`🎉 Goal complete: "${goal.title}" (+500 XP)`);
+  } else if(!goalFullyDone){
+    goal._completedFlag = false;
+  }
+  checkAchievements();
+  scheduleSaveState();
+}
+
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.achievements[a.id] && a.test(state)){
+      state.achievements[a.id] = true;
+      toast(`Achievement unlocked: ${a.icon} ${a.name}`);
+    }
+  });
+  scheduleSaveState();
+}
+
+/* ============ STREAK (server-authoritative — see /api/streak/log) ============ */
+document.getElementById('logTodayBtn').addEventListener('click', async ()=>{
+  if(!state.user.loggedIn){
+    openAuthModal();
+    return;
+  }
+  const btn = document.getElementById('logTodayBtn');
+  btn.disabled = true;
+  try{
+    const res = await apiPost('/api/streak/log');
+    const data = await res.json();
+    if(!res.ok){
+      toast(data.error || "Couldn't log today's progress.");
+      return;
+    }
+    state.streak = data.streak;
+    state.lastLogDate = data.lastLogDate;
+    if(data.already_logged){
+      toast("You've already logged today — come back tomorrow!");
+    } else {
+      checkAchievements();
+      toast(`Day ${state.streak} logged 🔥`);
+    }
+    renderDashboard();
+  } catch(err){
+    toast('Could not reach the server.');
+  } finally{
+    btn.disabled = false;
+  }
+});
+
+/* ============ NAV STATS SYNC ============ */
+function syncNavStats(){
+  const level = getLevel(state.xp);
+  document.getElementById('navLevelIcon').textContent = level.icon;
+  document.getElementById('navLevelName').textContent = level.name;
+  document.getElementById('navXpVal').textContent = state.xp;
+  document.getElementById('navProBadge').style.display = state.user.isPremium ? 'inline' : 'none';
+  if(document.querySelector('.page[data-page="dashboard"]').classList.contains('active')) renderDashboard();
+  if(document.querySelector('.page[data-page="profile"]').classList.contains('active')) renderProfile();
+}
+
+/* ============ DASHBOARD ============ */
+function renderDashboard(){
+  document.getElementById('dashName').textContent = state.user.name ? `, ${state.user.name.split(' ')[0]}` : '';
+  const active = state.goals.filter(g=>!g.phases.every(p=>p.done));
+  const completed = state.goals.filter(g=>g.phases.every(p=>p.done));
+  document.getElementById('statActive').innerHTML = (!PREMIUM_GATING_ENABLED || state.user.isPremium) ? active.length : `${active.length}<small style="font-size:1rem;"> / ${FREE_GOAL_LIMIT}</small>`;
+  document.getElementById('statCompleted').textContent = completed.length;
+  document.getElementById('statXp').textContent = state.xp;
+  document.getElementById('statStreak').innerHTML = state.streak + ' <small>🔥</small>';
+  document.getElementById('streakNum').textContent = state.streak;
+
+  const listEl = document.getElementById('activeGoalsList');
+  if(state.goals.length===0){
+    listEl.innerHTML = '<div class="empty-state">No active goals yet. Head to the Goal Generator to plant your first one 🌱</div>';
+  } else {
+    listEl.innerHTML='';
+    state.goals.forEach(g=>{
+      const totalTasks = g.phases.reduce((a,p)=>a+p.tasks.length,0);
+      const doneTasks = g.phases.reduce((a,p)=>a+p.tasks.filter(t=>t.done).length,0);
+      const pct = totalTasks? Math.round(doneTasks/totalTasks*100):0;
+      const row = document.createElement('div');
+      row.className='goal-row';
+      row.innerHTML = `
+        <div class="goal-row-main">
+          <div class="g-title">${g.title} ${g.phases.every(p=>p.done)?'✅':''}</div>
+          <div class="g-meta">${g.category} · ${g.timeline.label}</div>
+          <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <button class="btn btn-ghost btn-sm">View</button>
+      `;
+      row.querySelector('button').addEventListener('click', ()=>goTo('roadmap', {goalId:g.id}));
+      listEl.appendChild(row);
+    });
+  }
+
+  const upEl = document.getElementById('upcomingTasks');
+  const upcoming = [];
+  state.goals.forEach(g=>{
+    g.phases.forEach(p=>{
+      if(!p.done){
+        p.tasks.filter(t=>!t.done).slice(0,1).forEach(t=>upcoming.push({goal:g.title, task:t.text, goalId:g.id}));
+      }
+    });
+  });
+  if(upcoming.length===0){
+    upEl.innerHTML = '<div class="empty-state">Tasks from your active goals will show up here.</div>';
+  } else {
+    upEl.innerHTML = upcoming.slice(0,6).map(u=>`<div class="task-mini"><span>${u.task}</span><span class="mono" style="color:var(--ink-soft);font-size:0.78rem;">${u.goal}</span></div>`).join('');
+  }
+
+  const achEl = document.getElementById('achievementGrid');
+  achEl.innerHTML = ACHIEVEMENTS.map(a=>`
+    <div class="ach ${state.achievements[a.id]?'unlocked':''}">
+      <div class="aicon">${a.icon}</div>
+      <div class="aname">${a.name}</div>
+    </div>
+  `).join('');
+}
+
+/* ============ ROADMAP ============ */
+let currentRoadmapGoalId = null;
+function renderRoadmap(goalId){
+  currentRoadmapGoalId = goalId;
+  const goal = state.goals.find(g=>g.id===goalId);
+  if(!goal) return;
+  document.getElementById('rmTitle').textContent = goal.title;
+  const hwPart = (goal.height || goal.weight) ? ` · ${goal.height?goal.height+'cm':''}${goal.height&&goal.weight?' / ':''}${goal.weight?goal.weight+'kg':''}` : '';
+  document.getElementById('rmMeta').textContent = `${goal.category} · ${goal.experience} · ${goal.hours} hrs/week${hwPart}`;
+  document.getElementById('rmTimeline').textContent = goal.timeline.label;
+
+  const totalTasks = goal.phases.reduce((a,p)=>a+p.tasks.length,0);
+  const doneTasks = goal.phases.reduce((a,p)=>a+p.tasks.filter(t=>t.done).length,0);
+  const pct = totalTasks ? Math.round(doneTasks/totalTasks*100) : 0;
+  document.getElementById('rmProgressFill').style.width = pct+'%';
+  document.getElementById('rmProgressPct').textContent = pct+'%';
+
+  const wantsVideos = goal.method === 'Videos' || goal.method === 'Mixed';
+
+  const phasesEl = document.getElementById('rmPhases');
+  phasesEl.innerHTML='';
+  goal.phases.forEach((phase, pIdx)=>{
+    const videoContainerId = `phaseVideos-${goal.id}-${pIdx}`;
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase'+(phase.done?' done':'');
+    phaseEl.innerHTML = `
+      <div class="phase-card">
+        <div class="phase-top">
+          <div>
+            <div class="phase-tag">Phase 0${pIdx+1}${phase.done?' · Complete':''}</div>
+            <h3>${phase.name}</h3>
+          </div>
+          <span class="chev">▸</span>
+        </div>
+        <div class="phase-tasks">
+          ${phase.tasks.map((t,tIdx)=>`
+            <label class="task-item ${t.done?'checked':''}" data-task="${tIdx}">
+              <input type="checkbox" ${t.done?'checked':''}>
+              <span>${t.text}</span>
+            </label>
+          `).join('')}
+          <div class="phase-resource">📚 <span>${getResourceLine(goal.method, phase.name)}</span></div>
+          ${wantsVideos ? `<div class="phase-videos" id="${videoContainerId}"></div>` : ''}
+        </div>
+      </div>
+    `;
+    const top = phaseEl.querySelector('.phase-top');
+    const tasksBox = phaseEl.querySelector('.phase-tasks');
+    const isDefaultOpen = pIdx===0 || phase.tasks.some(t=>t.done);
+    top.addEventListener('click', ()=>{
+      const nowOpen = tasksBox.classList.toggle('open');
+      top.classList.toggle('open');
+      if(nowOpen && wantsVideos){
+        loadPhaseVideos(goal, phase, videoContainerId);
+      }
+    });
+    if(isDefaultOpen){
+      tasksBox.classList.add('open');
+      top.classList.add('open');
+    }
+    phaseEl.querySelectorAll('.task-item').forEach(item=>{
+      item.querySelector('input').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const tIdx = parseInt(item.dataset.task,10);
+        toggleTask(goal.id, pIdx, tIdx);
+        renderRoadmap(goal.id);
+      });
+    });
+    phasesEl.appendChild(phaseEl);
+    if(isDefaultOpen && wantsVideos){
+      loadPhaseVideos(goal, phase, videoContainerId);
+    }
+  });
+}
+
+/* Real video search (YouTube via backend) for Videos/Mixed learning styles.
+   Cached in-memory per goal+phase so re-renders (e.g. after checking a task)
+   don't burn API quota re-fetching the same results. */
+const videoCache = {};
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+async function loadPhaseVideos(goal, phase, containerId){
+  const cacheKey = goal.id + ':' + phase.name;
+  const container = document.getElementById(containerId);
+  if(!container) return;
+
+  if(videoCache[cacheKey]){
+    paintPhaseVideos(container, videoCache[cacheKey]);
+    return;
+  }
+
+  container.innerHTML = `<div class="video-loading">🔎 Finding videos for "${escapeHtml(phase.name)}"...</div>`;
+  const query = `${goal.title} ${phase.name} for beginners`;
+  try{
+    const res = await fetch(API_BASE + '/api/videos?query=' + encodeURIComponent(query), { credentials:'include' });
+    const data = await res.json();
+    videoCache[cacheKey] = data;
+    paintPhaseVideos(container, data);
+  } catch(err){
+    const fallback = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+    container.innerHTML = `<a class="video-fallback-link" href="${fallback}" target="_blank" rel="noopener">🔍 Search "${escapeHtml(phase.name)}" on YouTube</a>`;
+  }
+}
+function paintPhaseVideos(container, data){
+  if(!data.configured || data.error || !data.videos || !data.videos.length){
+    const url = data.fallback_url || '#';
+    container.innerHTML = `<a class="video-fallback-link" href="${url}" target="_blank" rel="noopener">🔍 Search this on YouTube</a>`;
+    return;
+  }
+  container.innerHTML = data.videos.map(v => `
+    <a class="video-card" href="${v.url}" target="_blank" rel="noopener">
+      <img src="${escapeHtml(v.thumbnail)}" alt="" loading="lazy">
+      <div class="video-card-info">
+        <div class="video-card-title">${escapeHtml(v.title)}</div>
+        <div class="video-card-channel">${escapeHtml(v.channelTitle)}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+/* ============ PROFILE ============ */
+function renderProfile(){
+  const level = getLevel(state.xp);
+  const next = getNextLevel(state.xp);
+  document.getElementById('profileAvatar').textContent = level.icon;
+  document.getElementById('profileName').textContent = state.user.name || 'Guest Grower';
+  document.getElementById('profileLevelName').textContent = level.name;
+  document.getElementById('profileXpNum').textContent = state.xp;
+  document.getElementById('profilePlanBadge').textContent = state.user.isPremium ? '· 👑 PREMIUM' : '· Free Plan';
+  const span = next ? (next.min - level.min) : 1;
+  const progressIntoLevel = next ? Math.min(100, Math.round(((state.xp-level.min)/span)*100)) : 100;
+  document.getElementById('profileXpFill').style.width = progressIntoLevel+'%';
+  document.getElementById('profileXpToNext').textContent = next ? `${next.min - state.xp} XP to ${next.name} ${next.icon}` : 'Max level reached 👑';
+  document.getElementById('profAge').textContent = state.user.age || '—';
+  document.getElementById('profCountry').textContent = state.user.country || '—';
+  if(state.user.height){
+    document.getElementById('profHeightCard').style.display='block';
+    document.getElementById('profHeight').textContent = state.user.height + ' cm';
+  }
+  if(state.user.weight){
+    document.getElementById('profWeightCard').style.display='block';
+    document.getElementById('profWeight').textContent = state.user.weight + ' kg';
+  }
+  document.getElementById('profGoalsCount').textContent = state.goals.length;
+  const unlockedCount = Object.keys(state.achievements).filter(k=>state.achievements[k]).length;
+  document.getElementById('profAchCount').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length}`;
+}
+
+/* ============ EXPLORE / LIBRARY ============ */
+const ALL_TEMPLATE_LIST = Object.values(TEMPLATES).concat([GENERIC_TEMPLATE]);
+function renderExplore(){
+  const grid = document.getElementById('exploreGrid');
+  if(grid.childElementCount) return; // render once
+  grid.innerHTML = ALL_TEMPLATE_LIST.map((tpl, idx)=>`
+    <div class="tpl-card">
+      <div class="tpl-card-head" data-tpl="${idx}">
+        <div>
+          <div class="eyebrow">${tpl.category}</div>
+          <h3>${tpl.category} Roadmap</h3>
+        </div>
+        <span class="chev">▸</span>
+      </div>
+      <div class="tpl-phase-list" id="tplList${idx}">
+        ${tpl.phases.map((p,pi)=>`
+          <div class="tpl-phase">
+            <div class="tp-name">Phase 0${pi+1}: ${p.name}</div>
+            <ul>${p.tasks.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.tpl-card-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      const list = document.getElementById('tplList'+head.dataset.tpl);
+      list.classList.toggle('open');
+      head.querySelector('.chev').style.transform = list.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
+  });
+  // open the first card by default
+  const firstList = document.getElementById('tplList0');
+  if(firstList){ firstList.classList.add('open'); }
+}
+
+/* ============ CHATBOT ============ */
+const chatLauncher = document.getElementById('chatLauncher');
+const chatPanel = document.getElementById('chatPanel');
+const chatBody = document.getElementById('chatBody');
+const chatSuggestions = document.getElementById('chatSuggestions');
+const chatInput = document.getElementById('chatInput');
+let chatOpened = false;
+
+const CHAT_INTENTS = [
+  { keys:['what is grovegoals','what is this','about','what do you do','what does grovegoals do'],
+    reply:"GroveGoals turns any goal — learning to code, passing an exam, becoming a YouTuber, anything — into a personalized step-by-step roadmap with phases, tasks, resources, and a timeline. You track progress and earn XP as you go." },
+  { keys:['how does it work','how it works','steps','process'],
+    reply:"It's 5 steps: 1) create a free account, 2) answer 5 quick questions about your goal, 3) we match it to a roadmap, 4) you get phases + daily/weekly tasks, 5) you track progress and earn XP as you complete them." },
+  { keys:['price','pricing','cost','free','premium','plan'],
+    reply:"Free gets you up to 3 active goals, roadmap generation, progress tracking, and XP. Premium ($9/mo) adds unlimited goals, an AI Coach, advanced analytics, and priority support." },
+  { keys:['sign up','signup','account','join','register','create account','log in','login'],
+    reply:"Tap 'Sign up' in the top right, enter your name and email, and hit Create Account — you'll get full access right away." },
+  { keys:['xp','level','points','gamif','reward'],
+    reply:"You earn +10 XP per task, +100 XP per completed phase, and +500 XP for finishing a whole goal. Levels run Seed 🌱 → Sprout 🌿 → Sapling 🌳 → Tree 🌲 → Forest Master 👑." },
+  { keys:['roadmap library','goals available','what goals','categories','library','explore roadmaps'],
+    reply:"Head to 'Explore Roadmaps' in the menu — every roadmap template is browsable there, phase by phase, before you even sign up." },
+  { keys:['dashboard'],
+    reply:"Your Dashboard shows active & completed goals, XP, streaks, achievements, and upcoming tasks — all in one place." },
+  { keys:['streak'],
+    reply:"Tap 'Log today's progress' on your Dashboard once a day to build your streak. Miss a day and it resets, so consistency is the whole game." },
+  { keys:['hi','hello','hey'],
+    reply:"Hey there 👋 I'm the Grove Assistant. Ask me what GroveGoals is, how it works, pricing, or tell me a goal you're chasing and I'll show you how to start." }
+];
+const CHAT_FALLBACK = "Tell me a specific goal (like \"learn guitar\" or \"become a nurse\") and I'll show you how GroveGoals would map it out — or ask me about pricing, XP, or how it works.";
+
+function matchTemplateStrict(goalText){
+  const g = goalText.toLowerCase();
+  for(const key in TEMPLATES){
+    const t = TEMPLATES[key];
+    if(t.match.some(m=>g.includes(m))) return t;
+  }
+  return null;
+}
+
+function addChatMsg(text, who){
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + who;
+  el.textContent = text;
+  chatBody.appendChild(el);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+function renderChatSuggestions(){
+  const chips = state.user.loggedIn
+    ? ["I only have 20 minutes today", "I'm stuck, can you help?", "What should I focus on next?"]
+    : ['What is GroveGoals?','How does it work?','Pricing','How do I sign up?','I want to become a YouTuber'];
+  chatSuggestions.innerHTML = chips.map(c=>`<button class="chat-chip">${c}</button>`).join('');
+  chatSuggestions.querySelectorAll('.chat-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>handleChatMessage(chip.textContent));
+  });
+}
+function addTypingIndicator(){
+  const el = document.createElement('div');
+  el.className = 'chat-msg bot chat-typing';
+  el.id = 'chatTypingIndicator';
+  chatBody.appendChild(el);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+function removeTypingIndicator(){
+  const el = document.getElementById('chatTypingIndicator');
+  if(el) el.remove();
+}
+
+async function handleChatMessage(text){
+  addChatMsg(text, 'user');
+  chatInput.value = '';
+  if(state.user.loggedIn){
+    await handleRealCoachMessage(text);
+  } else {
+    handleLocalChatMessage(text);
+  }
+}
+
+/* Real AI Coach — backend calls Anthropic with this user's actual goals,
+   progress, learning style, and streak baked into the system prompt. */
+async function handleRealCoachMessage(text){
+  addTypingIndicator();
+  try{
+    const res = await apiPost('/api/coach/chat', { message: text });
+    const data = await res.json();
+    removeTypingIndicator();
+    if(!res.ok){
+      addChatMsg(data.error || "Sorry, I couldn't respond just now — try again in a moment.", 'bot');
+      return;
+    }
+    addChatMsg(data.reply, 'bot');
+  } catch(err){
+    removeTypingIndicator();
+    addChatMsg("Couldn't reach the AI Coach right now — check your connection and try again.", 'bot');
+  }
+}
+
+/* Local fallback assistant for signed-out visitors — rule-based, no API calls. */
+function handleLocalChatMessage(text){
+  const lower = text.toLowerCase();
+  let matched = CHAT_INTENTS.find(intent=>intent.keys.some(k=>lower.includes(k)));
+  if(matched){
+    setTimeout(()=>{ addChatMsg(matched.reply, 'bot'); }, 350);
+    return;
+  }
+  const tpl = matchTemplateStrict(text);
+  setTimeout(()=>{
+    if(tpl){
+      const p1 = tpl.phases[0];
+      addChatMsg(`That's a ${tpl.category} goal — here's how GroveGoals would start it:\n\nPhase 01: ${p1.name}\n• ${p1.tasks.join('\n• ')}\n\nThere are ${tpl.phases.length} phases total. Sign up and I'll become your full AI Coach, with a real personalized roadmap and memory of your progress.`, 'bot');
+    } else {
+      const g1 = GENERIC_TEMPLATE.phases[0];
+      addChatMsg(`I don't have that exact goal pre-mapped, but GroveGoals still builds you a roadmap for it — starting with Phase 01: ${g1.name} (${g1.tasks[0].toLowerCase()}). Sign up and head to the Goal Generator for your full personalized plan.`, 'bot');
+    }
+    renderGoalFollowupChip(text);
+  }, 400);
+}
+function renderGoalFollowupChip(goalText){
+  chatSuggestions.innerHTML = `<button class="chat-chip" id="chatGoalCta">Generate my roadmap for this →</button>`;
+  document.getElementById('chatGoalCta').addEventListener('click', ()=>{
+    chatPanel.classList.remove('open');
+    chatLauncher.style.display = 'flex';
+    if(!state.user.loggedIn){
+      openAuthModal(()=>{ goTo('generator'); document.getElementById('goalInput').value = goalText; });
+    } else {
+      goTo('generator');
+      document.getElementById('goalInput').value = goalText;
+      document.getElementById('goalInput').dispatchEvent(new Event('input'));
+    }
+  });
+}
+
+async function openChatPanel(){
+  chatPanel.classList.add('open');
+  chatLauncher.style.display = 'none';
+  if(chatOpened) return;
+  chatOpened = true;
+
+  if(state.user.loggedIn){
+    document.getElementById('chatTitle').textContent = 'AI Coach';
+    document.getElementById('chatSub').textContent = `Knows your goals & progress, ${state.user.name.split(' ')[0]}`;
+    chatBody.innerHTML = '';
+    try{
+      const res = await fetch(API_BASE + '/api/coach/history', { credentials:'include' });
+      const data = await res.json();
+      const history = (data && data.history) || [];
+      if(history.length){
+        history.forEach(m=>addChatMsg(m.content, m.role === 'user' ? 'user' : 'bot'));
+      } else {
+        addChatMsg(`Hi ${state.user.name.split(' ')[0]}! I'm your AI Coach 🌳 I can see your goals and progress — tell me how much time you have today, or ask me anything about what to focus on next.`, 'bot');
+      }
+    } catch(err){
+      addChatMsg(`Hi ${state.user.name.split(' ')[0]}! I'm your AI Coach 🌳 Ask me anything about your goals — I'll do my best even though I couldn't load your chat history just now.`, 'bot');
+    }
+  } else {
+    document.getElementById('chatTitle').textContent = 'Grove Assistant';
+    document.getElementById('chatSub').textContent = 'Ask me what GroveGoals is about';
+    addChatMsg("Hi! I'm the Grove Assistant 🌳 GroveGoals turns any goal into a personalized roadmap with tasks, milestones, and XP rewards. Sign up and I become your full AI Coach. What would you like to know?", 'bot');
+  }
+  renderChatSuggestions();
+}
+
+// Reset the chat panel's init state whenever login state changes, so
+// reopening it picks the correct branch (local assistant vs real AI Coach).
+function resetChatForAuthChange(){
+  chatOpened = false;
+  chatBody.innerHTML = '';
+}
+
+chatLauncher.addEventListener('click', openChatPanel);
+document.getElementById('chatCloseBtn').addEventListener('click', ()=>{
+  chatPanel.classList.remove('open');
+  chatLauncher.style.display = 'flex';
+});
+document.getElementById('chatSendBtn').addEventListener('click', ()=>{
+  const val = chatInput.value.trim();
+  if(!val) return;
+  handleChatMessage(val);
+});
+chatInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const val = chatInput.value.trim();
+    if(!val) return;
+    handleChatMessage(val);
+  }
+});
+
+/* ============ PREMIUM UPGRADE (in-session simulation — no real payment) ============ */
+function upgradeToPremium(){
+  state.user.isPremium = true;
+  const cta = document.getElementById('premiumCta');
+  cta.textContent = "You're Premium ✓";
+  cta.disabled = true;
+  syncNavStats();
+  toast("You're on Premium now 🎉 Unlimited goals unlocked.");
+  if(document.querySelector('.page[data-page="profile"]').classList.contains('active')) renderProfile();
+  scheduleSaveState();
+}
+document.getElementById('premiumCta').addEventListener('click', ()=>{
+  if(!PREMIUM_GATING_ENABLED){
+    toast("Everything's free during early access — no need to upgrade yet 🌱");
+    return;
+  }
+  if(state.user.isPremium) return;
+  if(!state.user.loggedIn){
+    state.pendingPremiumUpgrade = true;
+    openAuthModal();
+    return;
+  }
+  upgradeToPremium();
+});
+
+function applyPremiumGatingUI(){
+  if(PREMIUM_GATING_ENABLED) return; // default markup already assumes gating is on
+  const note = document.getElementById('pricingNote');
+  if(note) note.style.display = 'block';
+  const limitLine = document.getElementById('freeGoalLimitLine');
+  if(limitLine) limitLine.textContent = 'Unlimited active goals (free for now)';
+  const priceAmt = document.getElementById('premiumPriceAmt');
+  if(priceAmt) priceAmt.innerHTML = '$0 <small style="font-size:1rem;">for now</small>';
+  const cta = document.getElementById('premiumCta');
+  if(cta) cta.textContent = 'Included — Free for now';
+}
+
+/* ============ INIT ============ */
+applyPremiumGatingUI();
+syncNavStats();
+})();
+</script>
+</body>
+</html>
