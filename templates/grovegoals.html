@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroveGoals — Grow Your Goals Into Reality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400">
+<style>
+:root{
+  --forest-deep:#0B3D2E;
+  --forest:#1E5631;
+  --sage:#7FB685;
+  --mint:#C9E8CE;
+  --canopy-light:#F5F9F3;
+  --gold:#E8B93E;
+  --ink:#122018;
+  --ink-soft:#4A5D52;
+  --white:#FFFFFF;
+  --line: rgba(11,61,46,0.12);
+  --shadow: 0 12px 32px rgba(11,61,46,0.12);
+  --radius: 18px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--canopy-light);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+.mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+a{ color:inherit; }
+button{ font-family:inherit; cursor:pointer; }
+img,svg{ display:block; max-width:100%; }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+.wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+.page{ display:none; }
+.page.active{ display:block; }
+</style>
+</head>
+<body>
+<h1>GroveGoals Main App</h1>
+<p>Frontend served from Flask backend</p>
+</body>
+</html>
