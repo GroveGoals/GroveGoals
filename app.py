@@ -929,5 +929,5 @@ def reset_password():
 
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    init_db()  # CREATE TABLE IF NOT EXISTS is idempotent — safe to call every start
+      # CREATE TABLE IF NOT EXISTS is idempotent — safe to call every start
     app.run(debug=not IS_PRODUCTION)
