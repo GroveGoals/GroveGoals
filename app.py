@@ -7,27 +7,31 @@ following the security checklist:
   - HTTPS only:               enforced via Flask-Talisman in production mode
   - Session security:         HttpOnly + Secure + SameSite cookies
   - Rate limiting:            Flask-Limiter, 5 attempts/min on auth routes
-  - SQL injection:            parameterized queries everywhere (sqlite3 "?" placeholders)
+  - SQL injection:            parameterized queries everywhere (psycopg2 "%s" placeholders)
   - Input validation:         email format check, password complexity, trimming
   - CSRF:                     Flask-WTF CSRFProtect on session-mutating routes
   - Account enumeration:      generic error messages, constant-time-ish responses
   - Password reset:           single-use, time-limited, hashed tokens
 
+Database: Postgres (e.g. a free Neon.tech project), via DATABASE_URL.
+This intentionally does NOT use a local SQLite file, because most free
+hosting (like Render's free tier) has no persistent disk — anything written
+to local disk resets on every restart/redeploy. A separate Postgres
+instance keeps your data permanent regardless of what happens to the web
+server itself, and Neon's free tier costs nothing and never expires.
+
 Run locally:
     pip install -r requirements.txt
-    cp .env.example .env        # then edit SECRET_KEY
-    flask --app app init-db     # creates users.db with the right tables
+    cp .env.example .env        # then edit SECRET_KEY and DATABASE_URL
+    flask --app app init-db     # creates the tables in your Postgres DB
     flask --app app run --debug
 
 This app serves the GroveGoals frontend itself at "/" (same-origin),
 so the frontend's fetch('/signup') etc. work with no CORS setup needed.
-If you ever split the frontend onto a different domain, see the README
-section "Splitting frontend and backend" for the extra config that needs.
 """
 
 import os
 import re
-import sqlite3
 import secrets
 import hashlib
 import json
@@ -35,6 +39,9 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import requests
+import psycopg2
+import psycopg2.errors
+from psycopg2.extras import RealDictCursor
 from flask import Flask, request, jsonify, session, g, send_from_directory
 from flask_wtf import CSRFProtect
 from flask_limiter import Limiter
@@ -50,6 +57,14 @@ load_dotenv()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5")
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+
+# Gemini is the recommended default: Google AI Studio issues free API keys
+# with no credit card and a generous daily quota, unlike Anthropic which
+# requires billing to be enabled even for light usage. If both keys are
+# set, Gemini is used first (see call_ai_coach() below).
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY", "")
 YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
@@ -68,7 +83,13 @@ if not app.config["SECRET_KEY"]:
 
 FLASK_ENV = os.environ.get("FLASK_ENV", "development")
 IS_PRODUCTION = FLASK_ENV == "production"
-DATABASE = os.environ.get("DATABASE", "users.db")
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not set. Create a free Postgres project (e.g. at "
+        "neon.tech), copy its connection string, and set it as DATABASE_URL "
+        "before running this app."
+    )
 
 # --- Session cookie security -------------------------------------------
 # HttpOnly: JS can't read the cookie (mitigates XSS token theft)
@@ -119,9 +140,7 @@ if IS_PRODUCTION:
 # --------------------------------------------------------------------------
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
-        g.db.execute("PRAGMA foreign_keys = ON")
+        g.db = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return g.db
 
 
@@ -132,35 +151,54 @@ def close_db(exception=None):
         db.close()
 
 
+def db_execute(db, query, params=()):
+    """
+    sqlite3-style '.execute()' convenience shim for psycopg2 connections.
+    psycopg2 (unlike sqlite3) requires an explicit cursor — this keeps every
+    call site below reading the same way: db_execute(db, "...", (...)).fetchone()
+    """
+    cur = db.cursor()
+    cur.execute(query, params)
+    return cur
+
+
 def init_db():
-    db = sqlite3.connect(DATABASE)
-    db.executescript(
+    db = psycopg2.connect(DATABASE_URL)
+    cur = db.cursor()
+    cur.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            id            SERIAL PRIMARY KEY,
             email         TEXT UNIQUE NOT NULL,
             name          TEXT,
             password_hash TEXT NOT NULL,
             created_at    TEXT NOT NULL
-        );
-
+        )
+        """
+    )
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS password_resets (
-            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            id           SERIAL PRIMARY KEY,
             user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             token_hash   TEXT NOT NULL,
             expires_at   TEXT NOT NULL,
             used         INTEGER NOT NULL DEFAULT 0,
             created_at   TEXT NOT NULL
-        );
-
+        )
+        """
+    )
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS user_state (
             user_id      INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
             state_json   TEXT NOT NULL DEFAULT '{}',
             updated_at   TEXT NOT NULL
-        );
+        )
         """
     )
     db.commit()
+    cur.close()
     db.close()
 
 
@@ -168,7 +206,7 @@ def init_db():
 def init_db_command():
     """Run with: flask --app app init-db"""
     init_db()
-    print(f"Initialized database at {DATABASE}")
+    print("Initialized database tables in the Postgres database at DATABASE_URL.")
 
 
 # --------------------------------------------------------------------------
@@ -254,9 +292,7 @@ def signup():
         return jsonify({"error": issues[0]}), 400
 
     db = get_db()
-    existing = db.execute(
-        "SELECT id FROM users WHERE email = ?", (email,)
-    ).fetchone()
+    existing = db_execute(db, "SELECT id FROM users WHERE email = %s", (email,)).fetchone()
     if existing:
         # Note: this does confirm the email is already registered, which is
         # a mild account-enumeration signal. Most products accept this
@@ -268,12 +304,20 @@ def signup():
 
     password_hash = hash_password(password)
     now = datetime.now(timezone.utc).isoformat()
-    cursor = db.execute(
-        "INSERT INTO users (email, name, password_hash, created_at) VALUES (?, ?, ?, ?)",
-        (email, name, password_hash, now),
-    )
-    db.commit()
-    user_id = cursor.lastrowid
+    try:
+        cursor = db_execute(
+            db,
+            "INSERT INTO users (email, name, password_hash, created_at) VALUES (%s, %s, %s, %s) RETURNING id",
+            (email, name, password_hash, now),
+        )
+        user_id = cursor.fetchone()["id"]
+        db.commit()
+    except psycopg2.errors.UniqueViolation:
+        # Rare race: two signups with the same email landed between the
+        # SELECT check above and this INSERT. Roll back so the connection
+        # isn't left in Postgres's "aborted transaction" state.
+        db.rollback()
+        return jsonify({"error": "An account with that email already exists."}), 409
 
     session.clear()
     session.permanent = True
@@ -292,8 +336,8 @@ def login():
     password = data.get("password") or ""
 
     db = get_db()
-    user = db.execute(
-        "SELECT id, name, password_hash FROM users WHERE email = ?", (email,)
+    user = db_execute(
+        db, "SELECT id, name, password_hash FROM users WHERE email = %s", (email,)
     ).fetchone()
 
     # Same generic error whether the email doesn't exist or the password is
@@ -320,8 +364,8 @@ def profile():
     if "user_id" not in session:
         return jsonify({"error": "Not authenticated"}), 401
     db = get_db()
-    user = db.execute(
-        "SELECT email, name FROM users WHERE id = ?", (session["user_id"],)
+    user = db_execute(
+        db, "SELECT email, name FROM users WHERE id = %s", (session["user_id"],)
     ).fetchone()
     if not user:
         session.clear()
@@ -360,7 +404,7 @@ SERVER_AUTHORITATIVE_KEYS = {"streak", "lastLogDate", "coachHistory"}
 
 
 def _load_state(db, user_id):
-    row = db.execute("SELECT state_json FROM user_state WHERE user_id = ?", (user_id,)).fetchone()
+    row = db_execute(db, "SELECT state_json FROM user_state WHERE user_id = %s", (user_id,)).fetchone()
     if not row:
         return dict(DEFAULT_STATE)
     try:
@@ -373,10 +417,11 @@ def _load_state(db, user_id):
 def _save_state(db, user_id, state_dict):
     to_store = {k: state_dict.get(k, DEFAULT_STATE[k]) for k in DEFAULT_STATE}
     now = datetime.now(timezone.utc).isoformat()
-    db.execute(
+    db_execute(
+        db,
         """
-        INSERT INTO user_state (user_id, state_json, updated_at) VALUES (?, ?, ?)
-        ON CONFLICT(user_id) DO UPDATE SET state_json = excluded.state_json, updated_at = excluded.updated_at
+        INSERT INTO user_state (user_id, state_json, updated_at) VALUES (%s, %s, %s)
+        ON CONFLICT (user_id) DO UPDATE SET state_json = EXCLUDED.state_json, updated_at = EXCLUDED.updated_at
         """,
         (user_id, json.dumps(to_store), now),
     )
@@ -534,7 +579,7 @@ def build_coach_system_prompt(user_name, app_state):
 def call_anthropic(system_prompt, history, user_message):
     """Returns (reply_text, error_message) — exactly one of the two is set."""
     if not ANTHROPIC_API_KEY:
-        return None, "The AI Coach isn't configured yet — ask the site owner to set ANTHROPIC_API_KEY."
+        return None, "The AI Coach isn't configured yet — ask the site owner to set ANTHROPIC_API_KEY or GEMINI_API_KEY."
 
     messages = []
     for msg in history[-COACH_HISTORY_SENT_TO_MODEL:]:
@@ -584,6 +629,78 @@ def call_anthropic(system_prompt, history, user_message):
     return text, None
 
 
+def call_gemini(system_prompt, history, user_message):
+    """
+    Returns (reply_text, error_message) — exactly one of the two is set.
+    Uses Google's Gemini API, which offers free API keys with no credit
+    card and a generous daily quota — the recommended option if you want
+    the AI Coach running at zero cost.
+    """
+    if not GEMINI_API_KEY:
+        return None, "The AI Coach isn't configured yet — ask the site owner to set GEMINI_API_KEY or ANTHROPIC_API_KEY."
+
+    contents = []
+    for msg in history[-COACH_HISTORY_SENT_TO_MODEL:]:
+        role = "model" if msg.get("role") == "assistant" else "user"
+        content = msg.get("content", "")
+        if content:
+            contents.append({"role": role, "parts": [{"text": content}]})
+    contents.append({"role": "user", "parts": [{"text": user_message}]})
+
+    url = GEMINI_API_URL.format(model=GEMINI_MODEL)
+
+    try:
+        resp = requests.post(
+            url,
+            params={"key": GEMINI_API_KEY},
+            headers={"content-type": "application/json"},
+            json={
+                "contents": contents,
+                "systemInstruction": {"parts": [{"text": system_prompt}]},
+                "generationConfig": {"maxOutputTokens": 400},
+            },
+            timeout=20,
+        )
+    except requests.RequestException:
+        return None, "Could not reach the AI service right now. Please try again shortly."
+
+    if resp.status_code in (401, 403):
+        return None, "The AI service rejected the configured API key."
+    if resp.status_code == 429:
+        return None, "The AI Coach is getting a lot of requests right now. Please try again in a moment."
+    if resp.status_code != 200:
+        return None, f"The AI service returned an error ({resp.status_code})."
+
+    try:
+        payload = resp.json()
+    except ValueError:
+        return None, "The AI service returned an unreadable response."
+
+    try:
+        candidates = payload.get("candidates", [])
+        parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
+        text = "".join(p.get("text", "") for p in parts).strip()
+    except (IndexError, AttributeError, TypeError):
+        text = ""
+
+    if not text:
+        return None, "The AI service returned an empty response."
+    return text, None
+
+
+def call_ai_coach(system_prompt, history, user_message):
+    """
+    Dispatches to whichever provider is configured. Gemini is tried first
+    since it's free to set up; Anthropic is used if that's what's configured
+    instead (or as well).
+    """
+    if GEMINI_API_KEY:
+        return call_gemini(system_prompt, history, user_message)
+    if ANTHROPIC_API_KEY:
+        return call_anthropic(system_prompt, history, user_message)
+    return None, "The AI Coach isn't configured yet — ask the site owner to set GEMINI_API_KEY (free, recommended) or ANTHROPIC_API_KEY."
+
+
 @app.route("/api/coach/history", methods=["GET"])
 def coach_history():
     if "user_id" not in session:
@@ -607,12 +724,12 @@ def coach_chat():
         return jsonify({"error": "That message is too long"}), 400
 
     db = get_db()
-    user_row = db.execute("SELECT name FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+    user_row = db_execute(db, "SELECT name FROM users WHERE id = %s", (session["user_id"],)).fetchone()
     app_state = _load_state(db, session["user_id"])
     history = app_state.get("coachHistory", [])
 
     system_prompt = build_coach_system_prompt(user_row["name"] if user_row else None, app_state)
-    reply, error = call_anthropic(system_prompt, history, user_message)
+    reply, error = call_ai_coach(system_prompt, history, user_message)
 
     if error:
         return jsonify({"error": error}), 503
@@ -708,16 +825,16 @@ def delete_account():
     password = data.get("password") or ""
 
     db = get_db()
-    user = db.execute(
-        "SELECT password_hash FROM users WHERE id = ?", (session["user_id"],)
+    user = db_execute(
+        db, "SELECT password_hash FROM users WHERE id = %s", (session["user_id"],)
     ).fetchone()
     if not user or not verify_password(password, user["password_hash"]):
         return jsonify({"error": "Incorrect password. Account was not deleted."}), 401
 
     user_id = session["user_id"]
-    db.execute("DELETE FROM user_state WHERE user_id = ?", (user_id,))
-    db.execute("DELETE FROM password_resets WHERE user_id = ?", (user_id,))
-    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db_execute(db, "DELETE FROM user_state WHERE user_id = %s", (user_id,))
+    db_execute(db, "DELETE FROM password_resets WHERE user_id = %s", (user_id,))
+    db_execute(db, "DELETE FROM users WHERE id = %s", (user_id,))
     db.commit()
     session.clear()
 
@@ -745,7 +862,7 @@ def request_password_reset():
         return generic_response, 200
 
     db = get_db()
-    user = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    user = db_execute(db, "SELECT id FROM users WHERE email = %s", (email,)).fetchone()
     if not user:
         return generic_response, 200
 
@@ -754,9 +871,10 @@ def request_password_reset():
     expires_at = (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat()
     now = datetime.now(timezone.utc).isoformat()
 
-    db.execute(
+    db_execute(
+        db,
         "INSERT INTO password_resets (user_id, token_hash, expires_at, used, created_at) "
-        "VALUES (?, ?, ?, 0, ?)",
+        "VALUES (%s, %s, %s, 0, %s)",
         (user["id"], token_hash, expires_at, now),
     )
     db.commit()
@@ -788,8 +906,9 @@ def reset_password():
 
     token_hash = hash_token(token)
     db = get_db()
-    row = db.execute(
-        "SELECT id, user_id, expires_at, used FROM password_resets WHERE token_hash = ?",
+    row = db_execute(
+        db,
+        "SELECT id, user_id, expires_at, used FROM password_resets WHERE token_hash = %s",
         (token_hash,),
     ).fetchone()
 
@@ -801,8 +920,8 @@ def reset_password():
         return jsonify({"error": "This reset link has expired. Please request a new one."}), 400
 
     new_hash = hash_password(new_password)
-    db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, row["user_id"]))
-    db.execute("UPDATE password_resets SET used = 1 WHERE id = ?", (row["id"],))
+    db_execute(db, "UPDATE users SET password_hash = %s WHERE id = %s", (new_hash, row["user_id"]))
+    db_execute(db, "UPDATE password_resets SET used = 1 WHERE id = %s", (row["id"],))
     db.commit()
 
     return jsonify({"message": "Password updated. You can now log in."}), 200
@@ -810,6 +929,5 @@ def reset_password():
 
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-    if not os.path.exists(DATABASE):
-        init_db()
+    init_db()  # CREATE TABLE IF NOT EXISTS is idempotent — safe to call every start
     app.run(debug=not IS_PRODUCTION)
