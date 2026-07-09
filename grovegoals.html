@@ -227,6 +227,16 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
 .dash-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; flex-wrap:wrap; gap:16px; }
 .dash-head h1{ font-size:2rem; color:var(--forest-deep); }
 .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:36px; }
+.coach-cta-card{
+  display:flex; align-items:center; gap:16px; background:var(--forest-deep); color:var(--white);
+  border-radius:20px; padding:20px 22px; margin-bottom:28px; cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.coach-cta-card:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(11,61,46,0.25); }
+.coach-cta-icon{ font-size:2rem; flex-shrink:0; width:52px; height:52px; background:rgba(255,255,255,0.12); border-radius:14px; display:flex; align-items:center; justify-content:center; }
+.coach-cta-title{ font-weight:700; font-size:1.05rem; }
+.coach-cta-sub{ font-size:0.83rem; opacity:0.8; margin-top:2px; }
+.coach-cta-arrow{ font-size:1.3rem; margin-left:auto; opacity:0.85; flex-shrink:0; }
 .stat-card{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:20px; }
 .stat-card .label{ font-family:'JetBrains Mono'; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); }
 .stat-card .val{ font-family:'Fraunces',serif; font-size:2rem; color:var(--forest-deep); margin-top:6px; }
@@ -292,6 +302,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
 .video-card-title{ font-size:0.82rem; font-weight:700; color:var(--forest-deep); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .video-card-channel{ font-size:0.72rem; color:var(--ink-soft); margin-top:2px; }
 .video-fallback-link{ font-size:0.82rem; color:var(--forest); background:var(--mint); padding:9px 12px; border-radius:10px; display:inline-block; text-decoration:none; font-weight:600; }
+.resource-link{ display:block; margin-top:8px; }
 .video-fallback-link:hover{ text-decoration:underline; }
 .chev{ font-size:0.8rem; color:var(--ink-soft); transition:transform .2s ease; }
 .phase-tasks.open ~ .chev, .phase-top.open .chev{ transform:rotate(90deg); }
@@ -299,7 +310,24 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
 /* ---------- Profile ---------- */
 .profile-shell{ padding:48px 0 90px; max-width:760px; margin:0 auto; }
 .profile-card{ background:var(--white); border:1px solid var(--line); border-radius:22px; padding:34px; text-align:center; margin-bottom:24px; }
-.profile-avatar{ width:84px; height:84px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 16px; }
+.profile-avatar{ width:84px; height:84px; border-radius:50%; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 16px; overflow:hidden; }
+.profile-avatar img{ width:100%; height:100%; object-fit:cover; }
+.profile-avatar-wrap{ position:relative; width:84px; margin:0 auto; }
+.avatar-edit-btn{
+  position:absolute; bottom:12px; right:-6px; width:30px; height:30px; border-radius:50%;
+  background:var(--forest-deep); border:2px solid var(--white); color:var(--white);
+  font-size:0.85rem; display:flex; align-items:center; justify-content:center;
+}
+.link-btn{ background:none; border:none; color:var(--forest); font-size:0.78rem; font-weight:700; text-decoration:underline; margin-bottom:12px; }
+.settings-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.settings-row-title{ font-weight:700; font-size:0.92rem; color:var(--ink); }
+.settings-row-sub{ font-size:0.78rem; color:var(--ink-soft); margin-top:2px; }
+.toggle-switch{ position:relative; display:inline-block; width:46px; height:26px; flex-shrink:0; }
+.toggle-switch input{ opacity:0; width:0; height:0; }
+.toggle-slider{ position:absolute; inset:0; background:var(--line); border-radius:999px; transition:background .2s ease; cursor:pointer; }
+.toggle-slider::before{ content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:var(--white); border-radius:50%; transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,0.25); }
+.toggle-switch input:checked + .toggle-slider{ background:var(--forest); }
+.toggle-switch input:checked + .toggle-slider::before{ transform:translateX(20px); }
 .profile-card h2{ font-size:1.4rem; color:var(--forest-deep); }
 .profile-level{ font-family:'JetBrains Mono'; font-size:0.85rem; color:var(--ink-soft); margin-top:4px; }
 .xp-bar{ height:10px; background:var(--mint); border-radius:6px; overflow:hidden; margin:18px auto 6px; max-width:340px; }
@@ -388,6 +416,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <li><button data-nav="explore">Explore Roadmaps</button></li>
       <li><button data-nav="generator">Goal Generator</button></li>
       <li><button data-nav="dashboard">Dashboard</button></li>
+      <li><button data-action="ai-coach" id="navAiCoachBtn">🌳 AI Coach</button></li>
       <li><button data-nav="profile">Profile</button></li>
     </ul>
     <div class="nav-cta">
@@ -402,6 +431,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <li><button class="mm-link" data-nav="explore">Explore Roadmaps</button></li>
       <li><button class="mm-link" data-nav="generator">Goal Generator</button></li>
       <li><button class="mm-link" data-nav="dashboard">Dashboard</button></li>
+      <li><button class="mm-link" data-action="ai-coach" id="mmAiCoachBtn">🌳 AI Coach</button></li>
       <li><button class="mm-link" data-nav="profile">Profile</button></li>
     </ul>
   </div>
@@ -631,6 +661,16 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
         <p class="mono" style="color:var(--ink-soft); font-size:0.85rem;">Welcome back<span id="dashName"></span>.</p>
       </div>
       <button class="btn btn-primary" data-nav="generator">+ New Goal</button>
+      <button class="btn btn-gold btn-sm" id="shareOverallBtn">📤 Share progress</button>
+    </div>
+
+    <div class="coach-cta-card" data-action="ai-coach">
+      <div class="coach-cta-icon">🌳</div>
+      <div class="coach-cta-text">
+        <div class="coach-cta-title">Chat with your AI Coach</div>
+        <div class="coach-cta-sub">It knows your goals, progress, and schedule — ask it anything, right now.</div>
+      </div>
+      <span class="coach-cta-arrow">→</span>
     </div>
 
     <div class="stat-row">
@@ -689,6 +729,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <div class="rm-progress-bar"><div class="rm-progress-fill" id="rmProgressFill" style="width:0%"></div></div>
       <div class="rm-progress-label"><span>0%</span><span id="rmProgressPct">0%</span><span>100%</span></div>
     </div>
+    <button class="btn btn-gold btn-sm" id="shareGoalBtn" style="margin-bottom:24px;">📤 Share my progress</button>
     <div class="trunk" id="rmPhases"></div>
   </div>
 </section>
@@ -697,7 +738,12 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
 <section class="page" data-page="profile">
   <div class="wrap profile-shell">
     <div class="profile-card">
-      <div class="profile-avatar" id="profileAvatar">🌱</div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatar">🌱</div>
+        <button class="avatar-edit-btn" id="avatarEditBtn" aria-label="Change profile picture">📷</button>
+        <input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
+      </div>
+      <button class="link-btn" id="removeAvatarBtn" style="display:none;">Remove photo</button>
       <h2 id="profileName">Guest Grower</h2>
       <div class="profile-level"><span id="profileLevelName">Seed</span> · <span id="profileXpNum">0</span> XP <span id="profilePlanBadge" class="mono" style="color:var(--gold);"></span></div>
       <div class="xp-bar"><div class="xp-fill" id="profileXpFill" style="width:0%"></div></div>
@@ -711,6 +757,21 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <div class="info-card"><div class="label">Active Goals</div><div class="value" id="profGoalsCount">0</div></div>
       <div class="info-card"><div class="label">Achievements Unlocked</div><div class="value" id="profAchCount">0 / 8</div></div>
     </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2 style="color:var(--forest-deep);">Settings</h2>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Daily email reminders</div>
+          <div class="settings-row-sub">Get a daily nudge about your goals, sent to your email.</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="emailRemindersToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
     <button class="btn btn-ghost" id="logoutBtn" style="margin-top:24px;width:100%;">Log out</button>
 
     <div class="panel" style="margin-top:28px; border-color:var(--line);">
@@ -754,6 +815,19 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <button type="button" class="btn btn-ghost" style="width:100%; margin-bottom:10px;" data-modal-close-delete>Cancel</button>
       <button type="submit" class="btn btn-sm" style="width:100%; background:#B3261E; color:#fff;">Permanently delete my account</button>
     </form>
+  </div>
+</div>
+
+<!-- Share preview modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal-box" style="max-width:380px;">
+    <button class="modal-close" data-modal-close-share>✕</button>
+    <h2>Share your progress</h2>
+    <p class="sub">Save it or share it straight to your favorite app.</p>
+    <canvas id="shareCanvas" width="640" height="640" style="display:none;"></canvas>
+    <img id="sharePreviewImg" style="width:100%; border-radius:16px; margin-bottom:18px; border:1px solid var(--line);" alt="Progress card preview">
+    <button class="btn btn-primary" id="shareNowBtn" style="width:100%; margin-bottom:10px;">Share</button>
+    <button class="btn btn-ghost" id="shareDownloadBtn" style="width:100%;">Download image</button>
   </div>
 </div>
 
@@ -1050,6 +1124,16 @@ navBtns.forEach(btn=>btn.addEventListener('click', ()=>{
   }
   goTo(target);
 }));
+
+document.querySelectorAll('[data-action="ai-coach"]').forEach(btn=>btn.addEventListener('click', ()=>{
+  closeMobileMenu();
+  if(!state.user.loggedIn){
+    openAuthModal(()=>openChatPanel());
+    return;
+  }
+  openChatPanel();
+}));
+
 /* Mobile hamburger menu */
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu = document.getElementById('mobileMenu');
@@ -1139,6 +1223,16 @@ async function loadStateFromServer(){
     state.user.height = data.height || null;
     state.user.weight = data.weight || null;
     state.nextGoalId = state.goals.reduce((max,g)=>Math.max(max, (g.id||0)+1), 1);
+
+    try{
+      const profRes = await fetch(API_BASE + '/profile', { credentials:'include' });
+      if(profRes.ok){
+        const profData = await profRes.json();
+        state.user.avatar = profData.avatar || null;
+        state.user.emailReminders = !!profData.emailReminders;
+      }
+    }catch(e){ /* non-fatal — profile picture/settings just won't show yet */ }
+
     return true;
   }catch(err){
     console.warn('Could not load saved progress from the server.');
@@ -1394,6 +1488,147 @@ document.getElementById('deleteAccountForm').addEventListener('submit', async fu
   }
 });
 
+/* ---- Share progress card (canvas-generated, no external service needed) ---- */
+const shareModal = document.getElementById('shareModal');
+let currentShareBlob = null;
+
+document.querySelectorAll('[data-modal-close-share]').forEach(b=>b.addEventListener('click', ()=>shareModal.classList.remove('open')));
+shareModal.addEventListener('click', e=>{ if(e.target===shareModal) shareModal.classList.remove('open'); });
+
+function drawRoundedRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '';
+  let curY = y;
+  for(const word of words){
+    const test = line + word + ' ';
+    if(ctx.measureText(test).width > maxWidth && line){
+      ctx.fillText(line.trim(), x, curY);
+      line = word + ' ';
+      curY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line.trim(), x, curY);
+  return curY;
+}
+
+async function generateAndShowShareCard({ heading, subheading, statBig, statLabel, pct }){
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#0B3D2E');
+  grad.addColorStop(1, '#1E5631');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Decorative leaf circles
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.beginPath(); ctx.arc(W-60, 80, 140, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(40, H-100, 110, 0, Math.PI*2); ctx.fill();
+
+  // Brand
+  ctx.fillStyle = '#C9E8CE';
+  ctx.font = '700 28px sans-serif';
+  ctx.fillText('🌳 GroveGoals', 48, 80);
+
+  // Heading
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 42px serif';
+  wrapCanvasText(ctx, heading, 48, 180, W-96, 52);
+
+  // Subheading
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = '400 24px sans-serif';
+  wrapCanvasText(ctx, subheading, 48, 260, W-96, 32);
+
+  // Progress bar (if provided)
+  if(typeof pct === 'number'){
+    const barY = 360, barH = 22, barX = 48, barW = W-96;
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    drawRoundedRect(ctx, barX, barY, barW, barH, barH/2); ctx.fill();
+    ctx.fillStyle = '#E8B93E';
+    drawRoundedRect(ctx, barX, barY, Math.max(barH, barW*(pct/100)), barH, barH/2); ctx.fill();
+  }
+
+  // Big stat
+  ctx.fillStyle = '#E8B93E';
+  ctx.font = '700 90px serif';
+  ctx.fillText(statBig, 48, 500);
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = '600 24px sans-serif';
+  ctx.fillText(statLabel, 48, 540);
+
+  // Footer
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '400 20px sans-serif';
+  ctx.fillText('grovegoals.onrender.com', 48, H-40);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  document.getElementById('sharePreviewImg').src = dataUrl;
+  currentShareBlob = await (await fetch(dataUrl)).blob();
+  shareModal.classList.add('open');
+}
+
+document.getElementById('shareOverallBtn').addEventListener('click', ()=>{
+  const level = getLevel(state.xp);
+  generateAndShowShareCard({
+    heading: `${state.user.name ? state.user.name.split(' ')[0] + "'s" : 'My'} growth on GroveGoals 🌱`,
+    subheading: `Level: ${level.name} ${level.icon} · ${state.streak} day streak · ${state.goals.length} active goal${state.goals.length===1?'':'s'}`,
+    statBig: `${state.xp}`,
+    statLabel: 'Total XP earned'
+  });
+});
+
+document.getElementById('shareGoalBtn').addEventListener('click', ()=>{
+  const goal = state.goals.find(g=>g.id===currentRoadmapGoalId);
+  if(!goal) return;
+  const totalTasks = goal.phases.reduce((a,p)=>a+p.tasks.length,0);
+  const doneTasks = goal.phases.reduce((a,p)=>a+p.tasks.filter(t=>t.done).length,0);
+  const pct = totalTasks ? Math.round(doneTasks/totalTasks*100) : 0;
+  generateAndShowShareCard({
+    heading: `${pct}% through my ${goal.category} roadmap!`,
+    subheading: `"${goal.title}" on GroveGoals`,
+    statBig: `${pct}%`,
+    statLabel: 'Complete',
+    pct
+  });
+});
+
+document.getElementById('shareNowBtn').addEventListener('click', async ()=>{
+  if(!currentShareBlob) return;
+  const file = new File([currentShareBlob], 'grovegoals-progress.png', { type: 'image/png' });
+  if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+    try{
+      await navigator.share({ files:[file], title:'My GroveGoals progress', text:'Check out my progress on GroveGoals!' });
+    } catch(err){
+      // user cancelled the native share sheet — no error needed
+    }
+  } else {
+    toast("Sharing isn't supported on this browser — try Download instead.");
+  }
+});
+
+document.getElementById('shareDownloadBtn').addEventListener('click', ()=>{
+  const a = document.createElement('a');
+  a.href = document.getElementById('sharePreviewImg').src;
+  a.download = 'grovegoals-progress.png';
+  a.click();
+});
+
 /* ---- Restore session on page load (server-side session cookie) ---- */
 (async function restoreSession(){
   try{
@@ -1542,6 +1777,20 @@ function getResourceLine(method, phaseName){
     Mixed: `Combine a short video, a quick read, and hands-on practice for "${phaseName}"`
   };
   return map[method] || map.Mixed;
+}
+
+/* Real, clickable resource links for every learning style — no API key
+   needed, since these are search-engine links rather than curated results
+   (unlike video search, which uses the real YouTube API when configured). */
+function buildResourceLinks(goal, phase){
+  const topic = `${goal.title} ${phase.name}`;
+  const methods = goal.method === 'Mixed' ? ['Reading','Practice','Mentorship'] : [goal.method];
+  const builders = {
+    Reading: ()=>({ icon:'📖', label:'Read an article or guide', url:'https://www.google.com/search?q=' + encodeURIComponent(topic + ' guide article for beginners') }),
+    Practice: ()=>({ icon:'🛠️', label:'Find a practice exercise', url:'https://www.google.com/search?q=' + encodeURIComponent(topic + ' practice exercise tutorial') }),
+    Mentorship: ()=>({ icon:'👥', label:'Find a community or mentor', url:'https://www.google.com/search?q=' + encodeURIComponent(topic + ' community forum reddit discord') })
+  };
+  return methods.filter(m=>builders[m]).map(m=>builders[m]());
 }
 
 /* ============ XP / TASK LOGIC ============ */
@@ -1711,6 +1960,7 @@ function renderRoadmap(goalId){
   phasesEl.innerHTML='';
   goal.phases.forEach((phase, pIdx)=>{
     const videoContainerId = `phaseVideos-${goal.id}-${pIdx}`;
+    const resourceLinks = buildResourceLinks(goal, phase);
     const phaseEl = document.createElement('div');
     phaseEl.className = 'phase'+(phase.done?' done':'');
     phaseEl.innerHTML = `
@@ -1730,6 +1980,7 @@ function renderRoadmap(goalId){
             </label>
           `).join('')}
           <div class="phase-resource">📚 <span>${getResourceLine(goal.method, phase.name)}</span></div>
+          ${resourceLinks.map(l => `<a class="video-fallback-link resource-link" href="${l.url}" target="_blank" rel="noopener">${l.icon} ${l.label}</a>`).join('')}
           ${wantsVideos ? `<div class="phase-videos" id="${videoContainerId}"></div>` : ''}
         </div>
       </div>
@@ -1815,7 +2066,14 @@ function paintPhaseVideos(container, data){
 function renderProfile(){
   const level = getLevel(state.xp);
   const next = getNextLevel(state.xp);
-  document.getElementById('profileAvatar').textContent = level.icon;
+  const avatarEl = document.getElementById('profileAvatar');
+  if(state.user.avatar){
+    avatarEl.innerHTML = `<img src="${state.user.avatar}" alt="Profile photo">`;
+    document.getElementById('removeAvatarBtn').style.display = 'inline';
+  } else {
+    avatarEl.textContent = level.icon;
+    document.getElementById('removeAvatarBtn').style.display = 'none';
+  }
   document.getElementById('profileName').textContent = state.user.name || 'Guest Grower';
   document.getElementById('profileLevelName').textContent = level.name;
   document.getElementById('profileXpNum').textContent = state.xp;
@@ -1837,7 +2095,100 @@ function renderProfile(){
   document.getElementById('profGoalsCount').textContent = state.goals.length;
   const unlockedCount = Object.keys(state.achievements).filter(k=>state.achievements[k]).length;
   document.getElementById('profAchCount').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length}`;
+  document.getElementById('emailRemindersToggle').checked = !!state.user.emailReminders;
 }
+
+/* ---- Profile picture upload (resized client-side before sending) ---- */
+document.getElementById('avatarEditBtn').addEventListener('click', ()=>{
+  document.getElementById('avatarFileInput').click();
+});
+
+document.getElementById('avatarFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    toast('Please choose an image file.');
+    return;
+  }
+  try{
+    const resizedDataUrl = await resizeImageToDataUrl(file, 256, 256, 0.85);
+    const res = await apiPost('/api/profile/avatar', { image: resizedDataUrl });
+    const data = await res.json();
+    if(!res.ok){
+      toast(data.error || 'Could not upload photo.');
+      return;
+    }
+    state.user.avatar = resizedDataUrl;
+    renderProfile();
+    toast('Profile picture updated 📸');
+  } catch(err){
+    toast('Could not process that image. Try a different photo.');
+  } finally{
+    e.target.value = ''; // allow re-selecting the same file later
+  }
+});
+
+document.getElementById('removeAvatarBtn').addEventListener('click', async ()=>{
+  try{
+    if(!csrfToken) await fetchCsrfToken();
+    const res = await fetch(API_BASE + '/api/profile/avatar', {
+      method: 'DELETE',
+      headers: { 'X-CSRFToken': csrfToken || '' },
+      credentials: 'include'
+    });
+    if(res.ok){
+      state.user.avatar = null;
+      renderProfile();
+      toast('Profile picture removed');
+    } else {
+      toast('Could not remove photo right now.');
+    }
+  }catch(err){
+    toast('Could not remove photo right now.');
+  }
+});
+
+function resizeImageToDataUrl(file, maxW, maxH, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e)=>{ img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      let { width, height } = img;
+      const ratio = Math.min(maxW / width, maxH / height, 1);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---- Settings: email reminders toggle ---- */
+document.getElementById('emailRemindersToggle').addEventListener('change', async (e)=>{
+  const enabled = e.target.checked;
+  try{
+    const res = await apiPost('/api/profile/settings', { emailReminders: enabled });
+    const data = await res.json();
+    if(!res.ok){
+      e.target.checked = !enabled; // revert on failure
+      toast(data.error || 'Could not update settings.');
+      return;
+    }
+    state.user.emailReminders = enabled;
+    toast(enabled ? 'Daily email reminders turned on 📧' : 'Daily email reminders turned off');
+  } catch(err){
+    e.target.checked = !enabled;
+    toast('Could not reach the server.');
+  }
+});
 
 /* ============ EXPLORE / LIBRARY ============ */
 const ALL_TEMPLATE_LIST = Object.values(TEMPLATES).concat([GENERIC_TEMPLATE]);

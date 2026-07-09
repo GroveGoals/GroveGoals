@@ -197,6 +197,12 @@ def init_db():
         )
         """
     )
+    # Additive migrations — safe to run on every startup, including against
+    # an existing database that already has users in it (won't touch or
+    # lose any existing data, just adds new columns with sensible defaults
+    # if they aren't already there).
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data_url TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_reminders INTEGER NOT NULL DEFAULT 0")
     db.commit()
     cur.close()
     db.close()
@@ -365,12 +371,67 @@ def profile():
         return jsonify({"error": "Not authenticated"}), 401
     db = get_db()
     user = db_execute(
-        db, "SELECT email, name FROM users WHERE id = %s", (session["user_id"],)
+        db, "SELECT email, name, avatar_data_url, email_reminders FROM users WHERE id = %s", (session["user_id"],)
     ).fetchone()
     if not user:
         session.clear()
         return jsonify({"error": "Not authenticated"}), 401
-    return jsonify({"email": user["email"], "name": user["name"]}), 200
+    return jsonify({
+        "email": user["email"],
+        "name": user["name"],
+        "avatar": user["avatar_data_url"],
+        "emailReminders": bool(user["email_reminders"]),
+    }), 200
+
+
+# --------------------------------------------------------------------------
+# Profile picture + notification settings
+# --------------------------------------------------------------------------
+MAX_AVATAR_BYTES = 350_000  # ~350KB of base64 text — plenty for a small resized photo
+
+@app.route("/api/profile/avatar", methods=["POST"])
+@limiter.limit("10 per minute")
+def upload_avatar():
+    if "user_id" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    data = request.get_json(silent=True) or {}
+    image = data.get("image") or ""
+
+    if not image.startswith("data:image/"):
+        return jsonify({"error": "Please upload a valid image."}), 400
+    if len(image) > MAX_AVATAR_BYTES:
+        return jsonify({"error": "Image is too large. Please choose a smaller photo."}), 400
+
+    db = get_db()
+    db_execute(db, "UPDATE users SET avatar_data_url = %s WHERE id = %s", (image, session["user_id"]))
+    db.commit()
+    return jsonify({"message": "Profile picture updated", "avatar": image}), 200
+
+
+@app.route("/api/profile/avatar", methods=["DELETE"])
+def delete_avatar():
+    if "user_id" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+    db = get_db()
+    db_execute(db, "UPDATE users SET avatar_data_url = NULL WHERE id = %s", (session["user_id"],))
+    db.commit()
+    return jsonify({"message": "Profile picture removed"}), 200
+
+
+@app.route("/api/profile/settings", methods=["POST"])
+def update_profile_settings():
+    if "user_id" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+    data = request.get_json(silent=True) or {}
+    if "emailReminders" not in data:
+        return jsonify({"error": "emailReminders is required"}), 400
+
+    email_reminders = 1 if data.get("emailReminders") else 0
+    db = get_db()
+    db_execute(db, "UPDATE users SET email_reminders = %s WHERE id = %s", (email_reminders, session["user_id"]))
+    db.commit()
+    return jsonify({"message": "Settings updated", "emailReminders": bool(email_reminders)}), 200
 
 
 # --------------------------------------------------------------------------
@@ -929,5 +990,5 @@ def reset_password():
 
 # --------------------------------------------------------------------------
 if __name__ == "__main__":
-      # CREATE TABLE IF NOT EXISTS is idempotent — safe to call every start
+    init_db()  # CREATE TABLE IF NOT EXISTS is idempotent — safe to call every start
     app.run(debug=not IS_PRODUCTION)
