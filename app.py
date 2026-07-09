@@ -637,10 +637,13 @@ def build_coach_system_prompt(user_name, app_state):
     return "\n".join(lines)
 
 
-def call_anthropic(system_prompt, history, user_message):
-    """Returns (reply_text, error_message) — exactly one of the two is set."""
-    if not ANTHROPIC_API_KEY:
-        return None, "The AI Coach isn't configured yet — ask the site owner to set ANTHROPIC_API_KEY or GEMINI_API_KEY."
+import google.generativeai as genai
+import os
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
     messages = []
     for msg in history[-COACH_HISTORY_SENT_TO_MODEL:]:
@@ -648,48 +651,55 @@ def call_anthropic(system_prompt, history, user_message):
         content = msg.get("content", "")
         if content:
             messages.append({"role": role, "content": content})
-    messages.append({"role": "user", "content": user_message})
+    messages.append({"role": "user", "content": user_message
+
+
+           def call_gemini(system_prompt, history, user_message):
+    """Returns (reply_text, error_message)."""
+
+    if not GEMINI_API_KEY:
+        return None, "The AI Coach isn't configured yet. Please set GEMINI_API_KEY."
 
     try:
-        resp = requests.post(
-            ANTHROPIC_API_URL,
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": ANTHROPIC_MODEL,
-                "max_tokens": 400,
-                "system": system_prompt,
-                "messages": messages,
-            },
-            timeout=20,
-        )
-    except requests.RequestException:
-        return None, "Could not reach the AI service right now. Please try again shortly."
+        model = genai.GenerativeModel("gemini-2.5-flash")
 
-    if resp.status_code == 401:
-        return None, "The AI service rejected the configured API key."
-    if resp.status_code == 429:
+        conversation = system_prompt + "\n\n"
+
+        for msg in history[-COACH_HISTORY_SENT_TO_MODEL:]:
+            role = "Assistant" if msg.get("role") == "assistant" else "User"
+            conversation += f"{role}: {msg.get('content','')}\n"
+
+        conversation += f"User: {user_message}\nAssistant:"
+
+        response = model.generate_content(
+            conversation,
+            generation_config={
+                "max_output_tokens": 1024,
+                "temperature": 0.7,
+            }
+        )
+
+    except Exception as e:
+        return None, str(e)
+    excerequests.RequestException:
+        return None, "Could not reach the AI service right now. Please try again shortly."
+    
+        return None, "The AI service rejected the configured API key.
+
         return None, "The AI Coach is getting a lot of requests right now. Please try again in a moment."
     if resp.status_code != 200:
         return None, f"The AI service returned an error ({resp.status_code})."
 
     try:
-        payload = resp.json()
     except ValueError:
-        return None, "The AI service returned an unreadable response."
-
-    text = "".join(
+        return None, "The AI service returned an unreadable response.
+      
         block.get("text", "") for block in payload.get("content", []) if block.get("type") == "text"
     ).strip()
 
     if not text:
-        return None, "The AI service returned an empty response."
-    return text, None
-
-
+    "The AI service returned an empty response."
+  
 def call_gemini(system_prompt, history, user_message):
     """
     Returns (reply_text, error_message) — exactly one of the two is set.
