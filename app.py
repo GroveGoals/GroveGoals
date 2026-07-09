@@ -18,7 +18,7 @@ This intentionally does NOT use a local SQLite file, because most free
 hosting (like Render's free tier) has no persistent disk — anything written
 to local disk resets on every restart/redeploy. A separate Postgres
 instance keeps your data permanent regardless of what happens to the web
-server itself, and Neon's free tier costs nothing and never expires.
+server itself, and Neon's free tier costs nothing and never expires. 
 
 Run locally:
     pip install -r requirements.txt
