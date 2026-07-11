@@ -21,6 +21,25 @@
   --shadow: 0 12px 32px rgba(11,61,46,0.12);
   --radius: 18px;
 }
+:root[data-theme="dark"]{
+  --forest-deep:#0A2E22;
+  --forest:#2D6A4F;
+  --sage:#7FB685;
+  --mint:#1B4332;
+  --canopy-light:#0F1712;
+  --gold:#E8B93E;
+  --ink:#E8F3EC;
+  --ink-soft:#8FA69A;
+  --white:#182821;
+  --line: rgba(255,255,255,0.10);
+  --shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+:root[data-theme="dark"] .goal-card,
+:root[data-theme="dark"] .story-card,
+:root[data-theme="dark"] .price-card,
+:root[data-theme="dark"] .feature-card{ background:var(--white); }
+:root[data-theme="dark"] .cat-chip{ background:var(--white); }
+:root[data-theme="dark"] img{ opacity:0.92; }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -49,6 +68,20 @@ img,svg{ display:block; max-width:100%; }
 .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
 .page{ display:none; }
 .page.active{ display:block; }
+.page[data-page="coach"].active{ display:flex; }
+.page[data-page="coach"]{ height:calc(100vh - 70px); }
+.coach-page-shell{ display:flex; flex-direction:column; height:100%; max-width:800px; margin:0 auto; width:100%; }
+.coach-page-header{ display:flex; align-items:center; gap:14px; padding:20px 24px; border-bottom:1px solid var(--line); flex-shrink:0; }
+.coach-page-header-icon{ width:44px; height:44px; border-radius:12px; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+.coach-page-header h1{ font-size:1.2rem; color:var(--forest-deep); font-family:'Fraunces',serif; }
+.coach-page-header p{ font-size:0.8rem; color:var(--ink-soft); margin-top:2px; }
+.coach-page-body{ flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+.coach-page-body .chat-msg{ max-width:78%; font-size:0.95rem; padding:13px 17px; }
+.coach-page-suggestions{ display:flex; flex-wrap:wrap; gap:8px; padding:0 24px 14px; flex-shrink:0; }
+.coach-page-input-row{ display:flex; gap:10px; padding:16px 24px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
+.coach-page-input-row input{ flex:1; border:1.5px solid var(--line); border-radius:999px; padding:13px 18px; font-family:inherit; font-size:0.95rem; background:var(--canopy-light); }
+.coach-page-input-row button{ background:var(--forest-deep); color:var(--white); border:none; border-radius:50%; width:46px; height:46px; flex-shrink:0; font-size:1.1rem; }
+@media (max-width:800px){ .page[data-page="coach"]{ height:calc(100vh - 66px); } }
 
 /* ---------- Nav ---------- */
 header.site-nav{
@@ -76,6 +109,10 @@ header.site-nav{
 .mobile-menu.open{ display:block; }
 .mobile-menu ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; }
 .mobile-menu button.mm-link{ width:100%; text-align:left; background:none; border:none; font-size:1.1rem; font-weight:700; color:var(--forest-deep); padding:16px 4px; border-bottom:1px solid var(--line); }
+.mm-settings{ margin-top:20px; padding-top:16px; border-top:2px solid var(--line); }
+.mm-settings-title{ font-family:'JetBrains Mono',monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:12px; }
+.mm-settings-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 2px; font-size:0.95rem; color:var(--ink); border-bottom:1px solid var(--line); }
+.mm-settings-link{ display:block; width:100%; text-align:left; background:none; border:none; font-size:0.9rem; font-weight:600; color:var(--ink); padding:14px 2px; border-bottom:1px solid var(--line); }
 @media (max-width:860px){
   .nav-links{ display:none; }
   .hamburger{ display:flex; }
@@ -148,6 +185,9 @@ section.block{ padding:64px 0; }
 /* Popular goals */
 .goal-categories{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
 .cat-chip{ padding:9px 16px; border-radius:999px; border:1.5px solid var(--line); background:var(--white); font-size:0.85rem; font-weight:600; color:var(--ink-soft); }
+.cat-chip.locked{ opacity:0.7; }
+.pro-tag{ font-family:'JetBrains Mono',monospace; font-size:0.62rem; background:var(--gold); color:var(--forest-deep); padding:2px 6px; border-radius:6px; font-weight:700; vertical-align:middle; }
+.locked-category-notice{ grid-column:1/-1; text-align:center; background:var(--white); border:1.5px dashed var(--line); border-radius:16px; padding:32px 24px; }
 .cat-chip.active{ background:var(--forest-deep); color:var(--white); border-color:var(--forest-deep); }
 .goal-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
 .goal-card{
@@ -403,6 +443,15 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
 .tpl-phase ul{ margin:0; padding-left:18px; font-size:0.82rem; color:var(--ink-soft); display:flex; flex-direction:column; gap:3px; }
 </style>
 </head>
+<script>
+  // Applied before paint so there's no flash of the wrong theme on load.
+  (function(){
+    try{
+      const saved = localStorage.getItem('grovegoals-theme');
+      if(saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    }catch(e){ /* localStorage unavailable — defaults to light, harmless */ }
+  })();
+</script>
 <body>
 
 <header class="site-nav">
@@ -416,7 +465,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <li><button data-nav="explore">Explore Roadmaps</button></li>
       <li><button data-nav="generator">Goal Generator</button></li>
       <li><button data-nav="dashboard">Dashboard</button></li>
-      <li><button data-action="ai-coach" id="navAiCoachBtn">🌳 AI Coach</button></li>
+      <li><button data-nav="coach" id="navAiCoachBtn">🌳 AI Coach</button></li>
       <li><button data-nav="profile">Profile</button></li>
     </ul>
     <div class="nav-cta">
@@ -431,9 +480,29 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <li><button class="mm-link" data-nav="explore">Explore Roadmaps</button></li>
       <li><button class="mm-link" data-nav="generator">Goal Generator</button></li>
       <li><button class="mm-link" data-nav="dashboard">Dashboard</button></li>
-      <li><button class="mm-link" data-action="ai-coach" id="mmAiCoachBtn">🌳 AI Coach</button></li>
+      <li><button class="mm-link" data-nav="coach" id="mmAiCoachBtn">🌳 AI Coach</button></li>
       <li><button class="mm-link" data-nav="profile">Profile</button></li>
     </ul>
+    <div class="mm-settings">
+      <div class="mm-settings-title">Settings</div>
+      <div class="mm-settings-row">
+        <span>🌓 Dark mode</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="mm-settings-row">
+        <span>📧 Email reminders</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="mmEmailRemindersToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button class="mm-settings-link" id="mmEraseDataBtn">🗑️ Erase my progress</button>
+      <button class="mm-settings-link" id="mmDeleteAccountBtn" style="color:#B3261E;">⚠️ Delete my account</button>
+      <button class="btn btn-ghost" id="mmAuthBtn" style="width:100%; margin-top:14px;">Sign up / Log in</button>
+    </div>
   </div>
 </header>
 
@@ -664,7 +733,7 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
       <button class="btn btn-gold btn-sm" id="shareOverallBtn">📤 Share progress</button>
     </div>
 
-    <div class="coach-cta-card" data-action="ai-coach">
+    <div class="coach-cta-card" data-nav="coach">
       <div class="coach-cta-icon">🌳</div>
       <div class="coach-cta-text">
         <div class="coach-cta-title">Chat with your AI Coach</div>
@@ -734,6 +803,25 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
   </div>
 </section>
 
+<!-- ===================== AI COACH (full page) ===================== -->
+<section class="page" data-page="coach">
+  <div class="coach-page-shell">
+    <div class="coach-page-header">
+      <div class="coach-page-header-icon">🌳</div>
+      <div>
+        <h1>GroveGoals AI Coach</h1>
+        <p id="coachPageSub">Knows your goals, progress, and schedule</p>
+      </div>
+    </div>
+    <div class="coach-page-body" id="coachPageBody"></div>
+    <div class="coach-page-suggestions" id="coachPageSuggestions"></div>
+    <div class="coach-page-input-row">
+      <input type="text" id="coachPageInput" placeholder="Ask your AI Coach anything...">
+      <button id="coachPageSendBtn" aria-label="Send">➤</button>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== PROFILE ===================== -->
 <section class="page" data-page="profile">
   <div class="wrap profile-shell">
@@ -744,7 +832,9 @@ footer small{ opacity:0.6; display:block; margin-top:18px; font-size:0.78rem; }
         <input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
       </div>
       <button class="link-btn" id="removeAvatarBtn" style="display:none;">Remove photo</button>
-      <h2 id="profileName">Guest Grower</h2>
+      <h2 id="profileName" style="display:inline-block;">Guest Grower</h2>
+      <input type="text" id="profileNameInput" style="display:none; text-align:center; font-size:1.2rem; font-family:'Fraunces',serif; font-weight:600; border:1.5px solid var(--sage); border-radius:10px; padding:6px 12px; margin-bottom:4px;" maxlength="100">
+      <button class="link-btn" id="editNameBtn" style="display:block; margin:2px auto 0;">✏️ Edit name</button>
       <div class="profile-level"><span id="profileLevelName">Seed</span> · <span id="profileXpNum">0</span> XP <span id="profilePlanBadge" class="mono" style="color:var(--gold);"></span></div>
       <div class="xp-bar"><div class="xp-fill" id="profileXpFill" style="width:0%"></div></div>
       <p class="mono" style="font-size:0.75rem;color:var(--ink-soft);" id="profileXpToNext"></p>
@@ -942,7 +1032,7 @@ const ACHIEVEMENTS = [
 
 /* ============ ROADMAP TEMPLATES ============ */
 const TEMPLATES = {
-  software: { match:['software engineer','coding','programmer','web developer','app developer','game developer','developer','coder','build an app','build a website'],
+  software: { match:['software engineer','coding','learn coding','programmer','web developer','app developer','game developer','developer','coder','build an app','build a website','learn python','python','learn javascript','javascript','learn flutter','flutter','cybersecurity','artificial intelligence','machine learning','data science','ai engineer','ui/ux designer','ui/ux'],
     category:'Technology',
     phases:[
       {name:'Learn Computer Basics', tasks:['Get comfortable with your OS and file system','Learn keyboard shortcuts & typing speed basics','Understand how the internet & browsers work']},
@@ -952,7 +1042,7 @@ const TEMPLATES = {
       {name:'Create Portfolio', tasks:['Write 3 project case studies','Design and publish a portfolio site','Get feedback from 2 developers']},
       {name:'Apply For Jobs', tasks:['Polish your resume & LinkedIn','Apply to 5 roles per week','Practice 3 mock interviews']}
     ]},
-  youtuber: { match:['youtuber','content creator','tiktok','influencer','podcast','instagram page','video editor','personal brand'],
+  youtuber: { match:['youtuber','content creator','tiktok','influencer','streamer','podcast','instagram page','grow a blog','newsletter','create animations','video editor','personal brand'],
     category:'Content Creation',
     phases:[
       {name:'Learn the Craft', tasks:['Learn basic video editing','Study storytelling & hooks','Design channel branding & thumbnails']},
@@ -962,7 +1052,7 @@ const TEMPLATES = {
       {name:'Collaborate', tasks:['Reach out to 5 similar creators','Plan one collab video','Cross-promote each other\'s channels']},
       {name:'Prepare Monetization', tasks:['Check platform monetization requirements','Set up your creator account','Pitch your first sponsor or apply for a program']}
     ]},
-  business: { match:['business','entrepreneur','startup','online store','freelanc','investing','digital marketing','increase income'],
+  business: { match:['business','entrepreneur','startup','online store','dropshipping','e-commerce','saas','freelanc','investing','digital marketing','copywriting','learn sales','increase income'],
     category:'Business',
     phases:[
       {name:'Validate the Idea', tasks:['Talk to 10 potential customers','Research 3 competitors','Write a one-page business plan']},
@@ -972,7 +1062,7 @@ const TEMPLATES = {
       {name:'Grow & Market', tasks:['Run one small marketing campaign','Collect testimonials from customers','Double down on your best channel']},
       {name:'Scale', tasks:['Set a 90-day revenue goal','Delegate or automate one more task','Reinvest profit into growth']}
     ]},
-  creative: { match:['graphic design','drawing','animation','write a book','author','photography','music production','singing','piano','guitar','ui/ux'],
+  creative: { match:['graphic design','learn drawing','learn animation','3d modeling','fashion design','video editing','photography','music production','singing','piano','guitar','write a book','become an author'],
     category:'Creative Skills',
     phases:[
       {name:'Learn Fundamentals', tasks:['Study the core principles of the craft','Practice basic exercises daily','Collect 10 pieces of inspiration']},
@@ -982,7 +1072,7 @@ const TEMPLATES = {
       {name:'Get Feedback & Iterate', tasks:['Request critique from 3 people','Revise your weakest piece','Set a quality bar for future work']},
       {name:'Share & Grow', tasks:['Publish your portfolio online','Apply for one opportunity or gig','Set your next skill milestone']}
     ]},
-  language: { match:['learn english','learn french','learn spanish','learn japanese','learn chinese','learn german','communication skills','language'],
+  language: { match:['learn english','learn french','learn spanish','learn japanese','learn chinese','learn german','learn arabic','learn korean','communication skills','writing skills','language'],
     category:'Languages',
     phases:[
       {name:'Learn the Basics', tasks:['Learn 100 core vocabulary words','Learn basic sentence structure','Practice greetings & introductions']},
@@ -992,7 +1082,7 @@ const TEMPLATES = {
       {name:'Consume Native Content', tasks:['Watch a show without subtitles','Listen to a podcast in the language','Summarize what you understood']},
       {name:'Test Your Fluency', tasks:['Have a 10-minute unscripted conversation','Take a level placement test','Set your next fluency goal']}
     ]},
-  health: { match:['lose weight','gain muscle','exercise','fitness','healthy habits','sleep better','eat healthier','marathon','footballer','basketball','runner','swimming','athletic'],
+  health: { match:['lose weight','gain muscle','exercise regularly','improve fitness','healthy habits','eat healthier','sleep better','train for a 5k','5k run','marathon','practice yoga','flexibility','reduce stress'],
     category:'Health & Fitness',
     phases:[
       {name:'Build the Habit', tasks:['Schedule workout times in your week','Do 3 sessions this week','Track how you feel after each session']},
@@ -1002,17 +1092,27 @@ const TEMPLATES = {
       {name:'Recover & Sustain', tasks:['Prioritize sleep and rest days','Review what\'s working and drop what isn\'t','Prevent burnout by varying routine']},
       {name:'Reach the Goal', tasks:['Do a final progress check-in','Celebrate the milestone reached','Set your next fitness goal']}
     ]},
-  education: { match:['waec','neco','jamb','better grades','become a doctor','become a lawyer','become an engineer','become a nurse','pharmacist','become a teacher','scholarship','study abroad','learn mathematics','learn science','improve english','exam'],
-    category:'Education',
+  sports: { match:['footballer','basketball player','become a runner','learn swimming','learn tennis','learn volleyball','learn cycling','athletic performance','sports team'],
+    category:'Sports',
     phases:[
-      {name:'Assess & Plan', tasks:['List all subjects/topics to cover','Get past questions or a syllabus','Build a realistic study calendar']},
-      {name:'Build Foundations', tasks:['Review core concepts for each subject','Fill in your weakest topic first','Create summary notes as you go']},
-      {name:'Practice Actively', tasks:['Complete timed practice questions','Review every mistake in detail','Track your score improvement']},
-      {name:'Deepen Weak Areas', tasks:['Identify your 3 weakest topics','Get extra help or resources for them','Retest yourself on those topics']},
-      {name:'Simulate the Real Thing', tasks:['Take one full mock exam','Practice under exam time pressure','Refine your exam-day strategy']},
-      {name:'Final Review', tasks:['Do a final round of quick revision','Rest well before the exam','Prepare everything needed for exam day']}
+      {name:'Learn the Fundamentals', tasks:['Learn proper technique and basic rules','Watch footage of skilled players','Practice basic drills 3x this week']},
+      {name:'Build Fitness for the Sport', tasks:['Add sport-specific conditioning to your week','Work on speed, strength, or endurance','Track your baseline fitness numbers']},
+      {name:'Develop Core Skills', tasks:['Drill your weakest skill daily','Get a coach or experienced player to review your form','Repeat drills until they feel natural']},
+      {name:'Play & Apply', tasks:['Join a practice game or scrimmage','Apply what you drilled in real play','Note what broke down under pressure']},
+      {name:'Compete', tasks:['Join a local league, club, or team','Play in a real match or event','Review your performance honestly']},
+      {name:'Level Up', tasks:['Set a specific new performance target','Address your biggest remaining weakness','Set your next sports milestone']}
     ]},
-  career: { match:['first job','promotion','change careers','professional portfolio','interview skills','resume','become a manager','career'],
+  personal: { match:['more confident','self-confidence','public speaking','procrastinat','time management','discipline','more productive','leadership','emotional intelligence','better habits','improve focus','wake up earlier','read more books'],
+    category:'Personal Development',
+    phases:[
+      {name:'Get Honest', tasks:['Identify exactly where this holds you back','Write down 3 recent examples','Set one clear, specific target']},
+      {name:'Build Small Wins', tasks:['Do one small brave action this week','Reflect on how it felt afterward','Repeat with slightly bigger actions']},
+      {name:'Build a System', tasks:['Create a simple daily routine around it','Remove one obstacle in your environment','Track your consistency daily']},
+      {name:'Get Feedback', tasks:['Ask someone you trust for honest feedback','Adjust your approach based on it','Notice what\'s actually changing']},
+      {name:'Stress-Test It', tasks:['Put yourself in a harder situation','Handle a setback without quitting','Reflect on what you learned']},
+      {name:'Make It Permanent', tasks:['Review your progress over the full period','Lock in the habit long-term','Set your next personal growth goal']}
+    ]},
+  career: { match:['first job','internship','promotion','change careers','become a freelancer','become a manager','professional portfolio','interview skills','create a resume','networking'],
     category:'Career',
     phases:[
       {name:'Clarify the Target', tasks:['Define the exact role you want','Research required skills & qualifications','Identify 3 companies you\'d target']},
@@ -1022,7 +1122,7 @@ const TEMPLATES = {
       {name:'Interview Prep', tasks:['Practice 3 mock interviews','Prepare stories using the STAR method','Research each company before interviewing']},
       {name:'Land & Negotiate', tasks:['Evaluate any offers carefully','Negotiate salary or terms','Prepare a 30-60-90 day starting plan']}
     ]},
-  financial: { match:['save for a car','save for university','emergency fund','budgeting','financially independent','save money'],
+  financial: { match:['save for a car','save for university','emergency fund','budgeting','financially independent','out of debt','credit score','save money'],
     category:'Financial',
     phases:[
       {name:'Know Your Numbers', tasks:['Track all income and expenses for 2 weeks','Calculate your savings target','Identify 3 areas to cut back']},
@@ -1032,15 +1132,25 @@ const TEMPLATES = {
       {name:'Protect the Progress', tasks:['Separate savings into their own account','Set up a small buffer for emergencies','Avoid dipping into savings for non-essentials']},
       {name:'Reach the Target', tasks:['Do a final savings check-in','Celebrate hitting the target','Set your next financial goal']}
     ]},
-  life: { match:['confidence','public speaking','procrastinat','time management','discipline','productive','leadership','self-confidence'],
-    category:'Life Goals',
+  travel: { match:['travel the world','move to another country','study abroad','work abroad','dream vacation','digital nomad'],
+    category:'Travel',
     phases:[
-      {name:'Get Honest', tasks:['Identify exactly where this holds you back','Write down 3 recent examples','Set one clear, specific target']},
-      {name:'Build Small Wins', tasks:['Do one small brave action this week','Reflect on how it felt afterward','Repeat with slightly bigger actions']},
-      {name:'Build a System', tasks:['Create a simple daily routine around it','Remove one obstacle in your environment','Track your consistency daily']},
-      {name:'Get Feedback', tasks:['Ask someone you trust for honest feedback','Adjust your approach based on it','Notice what\'s actually changing']},
-      {name:'Stress-Test It', tasks:['Put yourself in a harder situation','Handle a setback without quitting','Reflect on what you learned']},
-      {name:'Make It Permanent', tasks:['Review your progress over the full period','Lock in the habit long-term','Set your next personal growth goal']}
+      {name:'Define the Trip', tasks:['Decide where, when, and for how long','Research visa/entry requirements','Set a realistic budget']},
+      {name:'Save & Prepare', tasks:['Set up a dedicated travel savings fund','Sort out passport, visas, or paperwork','Research health/travel insurance']},
+      {name:'Plan the Details', tasks:['Book flights and first few nights\' stay','Make a loose day-by-day itinerary','Learn a few key phrases if needed']},
+      {name:'Handle Logistics', tasks:['Sort out work, housing, or remote-work logistics','Arrange finances for being abroad','Tell the important people in your life the plan']},
+      {name:'Go & Adapt', tasks:['Arrive and handle the first-week basics','Find your way around key local systems','Adjust your plan based on reality']},
+      {name:'Make It Sustainable', tasks:['Settle into a working routine there','Review budget vs. actual spending','Decide on your next step or destination']}
+    ]},
+  hobbies: { match:['learn cooking','learn baking','learn chess','chess strategy','learn gardening','learn calligraphy','learn knitting','learn woodworking'],
+    category:'Hobbies',
+    phases:[
+      {name:'Learn the Basics', tasks:['Learn the essential tools and terms','Watch or read 2-3 beginner tutorials','Try your first simple attempt']},
+      {name:'Practice the Fundamentals', tasks:['Repeat core techniques a few times','Notice what\'s hard and why','Ask someone experienced for a tip']},
+      {name:'Build Confidence', tasks:['Complete one small project start to finish','Compare it honestly to your first attempt','Pick one thing to improve next time']},
+      {name:'Explore Variations', tasks:['Try a slightly different style or approach','Learn one new technique','Keep the parts that worked for you']},
+      {name:'Share What You Make', tasks:['Show your work to a friend or community','Take feedback without over-reacting to it','Note the most useful feedback']},
+      {name:'Make It a Habit', tasks:['Set a regular time for this hobby','Plan your next, slightly bigger project','Enjoy it — that\'s the actual goal']}
     ]}
 };
 const GENERIC_TEMPLATE = { category:'General',
@@ -1053,15 +1163,48 @@ const GENERIC_TEMPLATE = { category:'General',
     {name:'Reach the Goal', tasks:['Do a final progress review','Celebrate what you\'ve achieved','Set your next goal']}
   ]};
 
+// Categories that are planned to eventually require Premium after a new
+// account's 3-month free-trial window — see PREMIUM_GATING_ENABLED and
+// isAccountInFreeTrial(). Chosen as the categories most tied to income/
+// career outcomes, where people are most likely to pay for extra support.
+const PREMIUM_CATEGORIES = ['Technology', 'Business', 'Career', 'Financial'];
+
+// Set to true once real payment is wired up to actually enforce the
+// 3-month-trial + premium-category lock below. Currently OFF: everything
+// is unlocked for everyone, but the trial-window math already works
+// correctly so flipping this on later "just works" retroactively.
+const PREMIUM_GATING_ENABLED = false;
+const FREE_TRIAL_DAYS = 90;
+const FREE_GOAL_LIMIT = 3;
+
+function isAccountInFreeTrial(){
+  if(!state.user.createdAt) return true; // no signup date on record yet — default to unlocked
+  const createdMs = new Date(state.user.createdAt).getTime();
+  if(Number.isNaN(createdMs)) return true;
+  const ageDays = (Date.now() - createdMs) / (1000*60*60*24);
+  return ageDays < FREE_TRIAL_DAYS;
+}
+function isCategoryLocked(category){
+  if(!PREMIUM_GATING_ENABLED) return false;
+  if(state.user.isPremium) return false;
+  if(!PREMIUM_CATEGORIES.includes(category)) return false;
+  return !isAccountInFreeTrial();
+}
+
 const POPULAR_CATEGORIES = {
-  'Education':['Pass WAEC','Pass JAMB','Become a doctor','Study abroad'],
-  'Technology':['Become a software engineer','Learn cybersecurity','Build an app','Learn data science'],
-  'Business':['Start a business','Become an entrepreneur','Start freelancing'],
-  'Content Creation':['Become a YouTuber','Grow an Instagram page','Start a podcast'],
-  'Creative Skills':['Learn graphic design','Write a book','Learn music production'],
-  'Health & Fitness':['Lose weight safely','Gain muscle','Run a marathon'],
-  'Life Goals':['Improve public speaking','Build discipline','Stop procrastinating'],
-  'Career':['Get my first job','Change careers','Get a promotion']
+  'Education': ['Pass WAEC','Pass NECO','Pass JAMB','Pass GCSE','Pass SAT','Pass IELTS','Pass TOEFL','Get better grades','Graduate from university','Become a doctor','Become a lawyer','Become an engineer','Become a nurse','Become a pharmacist','Become a teacher','Get a scholarship','Study abroad','Learn mathematics','Learn science','Improve English'],
+  'Technology': ['Learn coding','Learn Python','Learn JavaScript','Learn Flutter','Become a software engineer','Become a web developer','Become a game developer','Learn cybersecurity','Learn artificial intelligence','Learn machine learning','Learn data science','Become an AI engineer','Become a UI/UX designer','Build an app','Build a website'],
+  'Business': ['Start a business','Open an online store','Start a dropshipping business','Start an e-commerce business','Build a SaaS business','Become an entrepreneur','Learn digital marketing','Learn copywriting','Learn sales','Build a startup','Learn investing','Save money','Increase income','Start freelancing'],
+  'Content Creation': ['Become a YouTuber','Become a TikTok creator','Become an influencer','Become a streamer','Start a podcast','Grow an Instagram page','Grow a blog','Start a newsletter','Create animations','Become a video editor','Become a content creator','Build a personal brand'],
+  'Creative Skills': ['Learn graphic design','Learn drawing','Learn animation','Learn video editing','Learn photography','Learn music production','Learn singing','Learn piano','Learn guitar','Learn 3D modeling','Learn fashion design','Write a book','Become an author'],
+  'Languages': ['Learn English','Learn French','Learn Spanish','Learn Japanese','Learn Chinese','Learn German','Learn Arabic','Learn Korean','Improve communication skills','Improve writing skills'],
+  'Health & Fitness': ['Lose weight safely','Gain muscle','Exercise regularly','Improve fitness','Build healthy habits','Eat healthier','Sleep better','Train for a 5K run','Run a marathon','Practice yoga','Improve flexibility','Reduce stress'],
+  'Sports': ['Become a footballer','Become a basketball player','Become a runner','Learn swimming','Learn tennis','Learn volleyball','Learn cycling','Improve athletic performance','Join a sports team'],
+  'Personal Development': ['Become more confident','Build self-confidence','Improve public speaking','Stop procrastinating','Improve time management','Build discipline','Become more productive','Develop leadership skills','Improve emotional intelligence','Build better habits','Improve focus','Wake up earlier','Read more books'],
+  'Career': ['Get my first job','Get an internship','Get a promotion','Change careers','Become a freelancer','Become a manager','Build a professional portfolio','Improve interview skills','Create a resume','Learn networking'],
+  'Financial': ['Save for a car','Save for university','Build an emergency fund','Learn budgeting','Learn investing','Get out of debt','Become financially independent','Improve credit score'],
+  'Travel': ['Travel the world','Move to another country','Study abroad','Work abroad','Plan my dream vacation','Become a digital nomad'],
+  'Hobbies': ['Learn cooking','Learn baking','Learn chess','Learn chess strategy','Learn gardening','Learn calligraphy','Learn knitting','Learn woodworking']
 };
 
 /* ============ HELPERS ============ */
@@ -1113,25 +1256,17 @@ function goTo(pageName, opts){
   if(pageName==='dashboard') renderDashboard();
   if(pageName==='profile') renderProfile();
   if(pageName==='explore') renderExplore();
+  if(pageName==='coach') initCoachPage();
   if(pageName==='roadmap' && opts && opts.goalId) renderRoadmap(opts.goalId);
   closeMobileMenu();
 }
 navBtns.forEach(btn=>btn.addEventListener('click', ()=>{
   const target = btn.dataset.nav;
-  if((target==='dashboard'||target==='profile') && !state.user.loggedIn){
+  if((target==='dashboard'||target==='profile'||target==='coach') && !state.user.loggedIn){
     openAuthModal(()=>goTo(target));
     return;
   }
   goTo(target);
-}));
-
-document.querySelectorAll('[data-action="ai-coach"]').forEach(btn=>btn.addEventListener('click', ()=>{
-  closeMobileMenu();
-  if(!state.user.loggedIn){
-    openAuthModal(()=>openChatPanel());
-    return;
-  }
-  openChatPanel();
 }));
 
 /* Mobile hamburger menu */
@@ -1151,6 +1286,62 @@ document.querySelectorAll('[data-scroll]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.getElementById(btn.dataset.scroll).scrollIntoView({behavior:'smooth'});
   });
+});
+
+/* ---- Dark mode ---- */
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.checked = document.documentElement.getAttribute('data-theme') === 'dark';
+darkModeToggle.addEventListener('change', ()=>{
+  const isDark = darkModeToggle.checked;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  try{ localStorage.setItem('grovegoals-theme', isDark ? 'dark' : 'light'); }catch(e){}
+});
+
+/* ---- Hamburger menu: settings shortcuts ---- */
+function syncMobileMenuAuthUI(){
+  const btn = document.getElementById('mmAuthBtn');
+  btn.textContent = state.user.loggedIn ? 'Log out' : 'Sign up / Log in';
+  document.getElementById('mmEmailRemindersToggle').checked = !!state.user.emailReminders;
+}
+document.getElementById('mmAuthBtn').addEventListener('click', ()=>{
+  closeMobileMenu();
+  if(state.user.loggedIn){
+    performLogout();
+  } else {
+    openAuthModal();
+  }
+});
+document.getElementById('mmEraseDataBtn').addEventListener('click', ()=>{
+  closeMobileMenu();
+  if(!state.user.loggedIn){ openAuthModal(); return; }
+  document.getElementById('eraseModal').classList.add('open');
+});
+document.getElementById('mmDeleteAccountBtn').addEventListener('click', ()=>{
+  closeMobileMenu();
+  if(!state.user.loggedIn){ openAuthModal(); return; }
+  document.getElementById('deleteAccountError').style.display='none';
+  document.getElementById('deleteAccountPassword').value='';
+  document.getElementById('deleteAccountModal').classList.add('open');
+});
+document.getElementById('mmEmailRemindersToggle').addEventListener('change', async (e)=>{
+  if(!state.user.loggedIn){
+    e.target.checked = false;
+    closeMobileMenu();
+    openAuthModal();
+    return;
+  }
+  const enabled = e.target.checked;
+  try{
+    const res = await apiPost('/api/profile/settings', { emailReminders: enabled });
+    if(!res.ok){ e.target.checked = !enabled; toast('Could not update settings.'); return; }
+    state.user.emailReminders = enabled;
+    const profileToggle = document.getElementById('emailRemindersToggle');
+    if(profileToggle) profileToggle.checked = enabled;
+    toast(enabled ? 'Daily email reminders turned on 📧' : 'Daily email reminders turned off');
+  }catch(err){
+    e.target.checked = !enabled;
+    toast('Could not reach the server.');
+  }
 });
 
 /* ============ AUTH: backend integration ============ */
@@ -1230,6 +1421,7 @@ async function loadStateFromServer(){
         const profData = await profRes.json();
         state.user.avatar = profData.avatar || null;
         state.user.emailReminders = !!profData.emailReminders;
+        state.user.createdAt = profData.createdAt || null;
       }
     }catch(e){ /* non-fatal — profile picture/settings just won't show yet */ }
 
@@ -1308,11 +1500,16 @@ async function completeLogin(name, email){
   await fetchCsrfToken();
   await loadStateFromServer();
   syncNavStats();
+  syncMobileMenuAuthUI();
 
   if(state.pendingGoalDraft){
-    commitGoal(state.pendingGoalDraft);
+    const created = commitGoal(state.pendingGoalDraft);
     state.pendingGoalDraft = null;
-    goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+    if(created){
+      goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+    } else {
+      goTo('home');
+    }
   } else if(state.pendingPremiumUpgrade){
     state.pendingPremiumUpgrade = false;
     upgradeToPremium();
@@ -1393,7 +1590,54 @@ document.getElementById('forgotForm').addEventListener('submit', async function(
 });
 
 /* ---- Logout ---- */
-document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+/* ---- Editable display name ---- */
+document.getElementById('editNameBtn').addEventListener('click', ()=>{
+  const nameEl = document.getElementById('profileName');
+  const inputEl = document.getElementById('profileNameInput');
+  const editBtn = document.getElementById('editNameBtn');
+  const isEditing = inputEl.style.display !== 'none';
+  if(!isEditing){
+    inputEl.value = state.user.name || '';
+    nameEl.style.display = 'none';
+    inputEl.style.display = 'inline-block';
+    editBtn.textContent = '✅ Save';
+    inputEl.focus();
+  } else {
+    saveNewName(inputEl.value.trim());
+  }
+});
+document.getElementById('profileNameInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') saveNewName(e.target.value.trim());
+});
+async function saveNewName(newName){
+  const nameEl = document.getElementById('profileName');
+  const inputEl = document.getElementById('profileNameInput');
+  const editBtn = document.getElementById('editNameBtn');
+  if(!newName){
+    toast('Please enter a name.');
+    return;
+  }
+  try{
+    const res = await apiPost('/api/profile/name', { name: newName });
+    const data = await res.json();
+    if(!res.ok){
+      toast(data.error || 'Could not update your name.');
+      return;
+    }
+    state.user.name = data.name;
+    nameEl.textContent = data.name;
+    document.getElementById('navAuthBtn').textContent = data.name.split(' ')[0];
+    toast('Name updated 🌱');
+  } catch(err){
+    toast('Could not reach the server.');
+  } finally{
+    nameEl.style.display = 'inline-block';
+    inputEl.style.display = 'none';
+    editBtn.textContent = '✏️ Edit name';
+  }
+}
+
+async function performLogout(){
   try{
     await apiPost('/logout');
   } catch(err){ /* even if the network call fails, clear local state below */ }
@@ -1408,9 +1652,11 @@ document.getElementById('logoutBtn').addEventListener('click', async ()=>{
   document.getElementById('navAuthBtn').textContent = 'Sign up';
   document.getElementById('navXpPill').style.display='none';
   document.getElementById('genAuthNote').style.display='flex';
+  syncMobileMenuAuthUI();
   toast('Logged out. Come back soon 🌱');
   goTo('home');
-});
+}
+document.getElementById('logoutBtn').addEventListener('click', performLogout);
 
 /* ---- Erase my data (keep account) ---- */
 const eraseModal = document.getElementById('eraseModal');
@@ -1478,6 +1724,7 @@ document.getElementById('deleteAccountForm').addEventListener('submit', async fu
     document.getElementById('navAuthBtn').textContent = 'Sign up';
     document.getElementById('navXpPill').style.display='none';
     document.getElementById('genAuthNote').style.display='flex';
+    syncMobileMenuAuthUI();
     toast('Your account and all data have been permanently deleted.');
     goTo('home');
   } catch(err){
@@ -1649,15 +1896,30 @@ let activeCategory = 'Education';
 function renderCategoryChips(){
   catChipsEl.innerHTML='';
   Object.keys(POPULAR_CATEGORIES).forEach(cat=>{
+    const locked = isCategoryLocked(cat);
+    const isPremiumCat = PREMIUM_CATEGORIES.includes(cat);
     const chip=document.createElement('button');
-    chip.className='cat-chip'+(cat===activeCategory?' active':'');
-    chip.textContent=cat;
+    chip.className='cat-chip'+(cat===activeCategory?' active':'')+(locked?' locked':'');
+    chip.innerHTML = (locked ? '🔒 ' : '') + cat + (isPremiumCat && !locked ? ' <span class="pro-tag">PRO</span>' : '');
     chip.addEventListener('click', ()=>{ activeCategory=cat; renderCategoryChips(); renderGoalGrid(); });
     catChipsEl.appendChild(chip);
   });
 }
 function renderGoalGrid(){
   goalGridEl.innerHTML='';
+  const locked = isCategoryLocked(activeCategory);
+  if(locked){
+    goalGridEl.innerHTML = `
+      <div class="locked-category-notice">
+        <div style="font-size:1.8rem;">🔒</div>
+        <div style="font-weight:700; color:var(--forest-deep); margin:8px 0 4px;">Premium category</div>
+        <div style="font-size:0.88rem; color:var(--ink-soft); margin-bottom:16px;">Your 90-day free trial for ${activeCategory} has ended. Premium is coming soon — upgrade to keep creating goals here.</div>
+        <button class="btn btn-gold btn-sm" id="lockedUpgradeCta">Notify me when Premium is ready</button>
+      </div>`;
+    const cta = document.getElementById('lockedUpgradeCta');
+    if(cta) cta.addEventListener('click', ()=>toast("Thanks! We'll let you know when Premium launches 🌱"));
+    return;
+  }
   POPULAR_CATEGORIES[activeCategory].forEach(goal=>{
     const card=document.createElement('div');
     card.className='goal-card';
@@ -1717,14 +1979,12 @@ document.getElementById('genForm').addEventListener('submit', function(e){
     openAuthModal();
     return;
   }
-  commitGoal(draft);
-  goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+  const created = commitGoal(draft);
+  if(created){
+    goTo('roadmap', { goalId: state.goals[state.goals.length-1].id });
+  }
 });
 
-// Set to true to re-enable the free-plan goal cap + premium upsell gating.
-// Currently OFF: everything is unlocked for everyone for the moment.
-const PREMIUM_GATING_ENABLED = false;
-const FREE_GOAL_LIMIT = 3;
 function activeGoalCount(){ return state.goals.filter(g=>!g.phases.every(p=>p.done)).length; }
 
 function commitGoal(draft){
@@ -1732,13 +1992,18 @@ function commitGoal(draft){
     toast(`Free plan allows up to ${FREE_GOAL_LIMIT} active goals. Upgrade to Premium for unlimited goals.`);
     goTo('home');
     setTimeout(()=>document.getElementById('premiumCta').scrollIntoView({behavior:'smooth', block:'center'}), 400);
-    return;
+    return false;
+  }
+  const matchedTpl = matchTemplate(draft.goal);
+  if(isCategoryLocked(matchedTpl.category)){
+    toast(`${matchedTpl.category} is a Premium category and your free trial has ended. Premium is coming soon!`);
+    return false;
   }
   if(!state.user.age) state.user.age = draft.age;
   if(!state.user.country) state.user.country = draft.country;
   if(draft.height) state.user.height = draft.height;
   if(draft.weight) state.user.weight = draft.weight;
-  const tpl = matchTemplate(draft.goal);
+  const tpl = matchedTpl;
   const timeline = estimateTimeline(draft.hours, draft.experience);
   const method = draft.method || 'Mixed';
   const goal = {
@@ -1766,6 +2031,7 @@ function commitGoal(draft){
   hoursInput.value=10; hoursVal.textContent='10 hrs';
   healthFieldsWrap.style.display='none';
   scheduleSaveState();
+  return true;
 }
 
 function getResourceLine(method, phaseName){
@@ -2199,7 +2465,7 @@ function renderExplore(){
     <div class="tpl-card">
       <div class="tpl-card-head" data-tpl="${idx}">
         <div>
-          <div class="eyebrow">${tpl.category}</div>
+          <div class="eyebrow">${tpl.category}${PREMIUM_CATEGORIES.includes(tpl.category) ? ' <span class="pro-tag">PRO</span>' : ''}</div>
           <h3>${tpl.category} Roadmap</h3>
         </div>
         <span class="chev">▸</span>
@@ -2265,12 +2531,13 @@ function matchTemplateStrict(goalText){
   return null;
 }
 
-function addChatMsg(text, who){
+function addChatMsg(text, who, container){
+  container = container || chatBody;
   const el = document.createElement('div');
   el.className = 'chat-msg ' + who;
   el.textContent = text;
-  chatBody.appendChild(el);
-  chatBody.scrollTop = chatBody.scrollHeight;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
 }
 function renderChatSuggestions(){
   const chips = state.user.loggedIn
@@ -2281,15 +2548,16 @@ function renderChatSuggestions(){
     chip.addEventListener('click', ()=>handleChatMessage(chip.textContent));
   });
 }
-function addTypingIndicator(){
+function addTypingIndicator(container, elId){
+  container = container || chatBody;
   const el = document.createElement('div');
   el.className = 'chat-msg bot chat-typing';
-  el.id = 'chatTypingIndicator';
-  chatBody.appendChild(el);
-  chatBody.scrollTop = chatBody.scrollHeight;
+  el.id = elId || 'chatTypingIndicator';
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
 }
-function removeTypingIndicator(){
-  const el = document.getElementById('chatTypingIndicator');
+function removeTypingIndicator(elId){
+  const el = document.getElementById(elId || 'chatTypingIndicator');
   if(el) el.remove();
 }
 
@@ -2392,7 +2660,69 @@ async function openChatPanel(){
 function resetChatForAuthChange(){
   chatOpened = false;
   chatBody.innerHTML = '';
+  coachPageInitialized = false;
 }
+
+/* ============ FULL-PAGE AI COACH (real, logged-in users only) ============ */
+const coachPageBody = document.getElementById('coachPageBody');
+const coachPageSuggestions = document.getElementById('coachPageSuggestions');
+const coachPageInput = document.getElementById('coachPageInput');
+let coachPageInitialized = false;
+
+function renderCoachPageSuggestions(){
+  const chips = ["I only have 20 minutes today", "I'm stuck, can you help?", "What should I focus on next?", "Explain why this step matters"];
+  coachPageSuggestions.innerHTML = chips.map(c=>`<button class="chat-chip">${c}</button>`).join('');
+  coachPageSuggestions.querySelectorAll('.chat-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>handleCoachPageMessage(chip.textContent));
+  });
+}
+
+async function initCoachPage(){
+  if(!state.user.loggedIn) return; // goTo() gates this page behind login already
+  document.getElementById('coachPageSub').textContent = `Knows your goals & progress, ${state.user.name.split(' ')[0]}`;
+  if(coachPageInitialized) return;
+  coachPageInitialized = true;
+
+  coachPageBody.innerHTML = '';
+  try{
+    const res = await fetch(API_BASE + '/api/coach/history', { credentials:'include' });
+    const data = await res.json();
+    const history = (data && data.history) || [];
+    if(history.length){
+      history.forEach(m=>addChatMsg(m.content, m.role === 'user' ? 'user' : 'bot', coachPageBody));
+    } else {
+      addChatMsg(`Hi ${state.user.name.split(' ')[0]}! I'm your AI Coach 🌳 I can see your goals and progress — tell me how much time you have today, or ask me anything about what to focus on next.`, 'bot', coachPageBody);
+    }
+  } catch(err){
+    addChatMsg(`Hi ${state.user.name.split(' ')[0]}! I'm your AI Coach 🌳 Ask me anything — I'll do my best even though I couldn't load your chat history just now.`, 'bot', coachPageBody);
+  }
+  renderCoachPageSuggestions();
+}
+
+async function handleCoachPageMessage(text){
+  if(!text || !text.trim()) return;
+  addChatMsg(text, 'user', coachPageBody);
+  coachPageInput.value = '';
+  addTypingIndicator(coachPageBody, 'coachPageTypingIndicator');
+  try{
+    const res = await apiPost('/api/coach/chat', { message: text });
+    const data = await res.json();
+    removeTypingIndicator('coachPageTypingIndicator');
+    if(!res.ok){
+      addChatMsg(data.error || "Sorry, I couldn't respond just now — try again in a moment.", 'bot', coachPageBody);
+      return;
+    }
+    addChatMsg(data.reply, 'bot', coachPageBody);
+  } catch(err){
+    removeTypingIndicator('coachPageTypingIndicator');
+    addChatMsg("Couldn't reach the AI Coach right now — check your connection and try again.", 'bot', coachPageBody);
+  }
+}
+
+document.getElementById('coachPageSendBtn').addEventListener('click', ()=>handleCoachPageMessage(coachPageInput.value.trim()));
+coachPageInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter') handleCoachPageMessage(coachPageInput.value.trim());
+});
 
 chatLauncher.addEventListener('click', openChatPanel);
 document.getElementById('chatCloseBtn').addEventListener('click', ()=>{

@@ -371,7 +371,7 @@ def profile():
         return jsonify({"error": "Not authenticated"}), 401
     db = get_db()
     user = db_execute(
-        db, "SELECT email, name, avatar_data_url, email_reminders FROM users WHERE id = %s", (session["user_id"],)
+        db, "SELECT email, name, avatar_data_url, email_reminders, created_at FROM users WHERE id = %s", (session["user_id"],)
     ).fetchone()
     if not user:
         session.clear()
@@ -381,7 +381,23 @@ def profile():
         "name": user["name"],
         "avatar": user["avatar_data_url"],
         "emailReminders": bool(user["email_reminders"]),
+        "createdAt": user["created_at"],
     }), 200
+
+
+@app.route("/api/profile/name", methods=["POST"])
+@limiter.limit("10 per minute")
+def update_display_name():
+    if "user_id" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()[:100]
+    if not name:
+        return jsonify({"error": "Please enter a valid name"}), 400
+    db = get_db()
+    db_execute(db, "UPDATE users SET name = %s WHERE id = %s", (name, session["user_id"]))
+    db.commit()
+    return jsonify({"message": "Name updated", "name": name}), 200
 
 
 # --------------------------------------------------------------------------
