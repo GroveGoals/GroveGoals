@@ -1,0 +1,53 @@
+<!-- ===== SIDE NAVIGATION DRAWER (Hamburger Menu) ===== -->
+<div class="nav-overlay" id="navOverlay"></div>
+
+<nav class="side-drawer" id="sideDrawer" role="navigation" aria-label="Main navigation">
+  <div class="drawer-header">
+    <div class="drawer-brand">🌳 GroveGoals</div>
+    <button class="drawer-close" id="drawerClose" aria-label="Close menu">✕</button>
+  </div>
+  
+  <div class="drawer-user" id="drawerUser">
+    <div class="drawer-avatar" id="drawerAvatar">🌱</div>
+    <div>
+      <div class="drawer-name" id="drawerName">Guest</div>
+      <div class="drawer-status" id="drawerStatus">
+        <span class="status-dot online" id="statusDot"></span>
+        <span id="statusText">Online</span>
+      </div>
+    </div>
+  </div>
+
+  <ul class="drawer-menu">
+    <li><a href="#" class="drawer-link" data-page="home">🏠 Home</a></li>
+    <li><a href="#" class="drawer-link" data-page="profile">👤 My Profile</a></li>
+    <li><a href="#" class="drawer-link" data-page="goals">🌱 My Goals</a></li>
+    <li><a href="#" class="drawer-link" data-page="aicoach">🤖 AI Coach</a></li>
+    <li><a href="#" class="drawer-link" data-page="dashboard">📊 Dashboard</a></li>
+    <li><a href="#" class="drawer-link" data-page="calendar">📅 Calendar</a></li>
+    <li><a href="#" class="drawer-link" data-page="achievements">🏆 Achievements</a></li>
+    <li><a href="#" class="drawer-link" data-page="communities">👥 Communities</a></li>
+    <li><a href="#" class="drawer-link" data-page="explore">🔍 Explore Goals</a></li>
+    <li><a href="#" class="drawer-link" data-page="resources">📚 Learning Resources</a></li>
+  </ul>
+
+  <div class="drawer-divider"></div>
+
+  <ul class="drawer-menu">
+    <li><a href="#" class="drawer-link" data-page="premium">💎 Upgrade to Premium</a></li>
+    <li><a href="#" class="drawer-link" data-page="settings">⚙️ Settings</a></li>
+    <li><a href="#" class="drawer-link" data-page="help">❓ Help & Support</a></li>
+    <li><a href="#" class="drawer-link" data-page="contact">📩 Contact Us</a></li>
+  </ul>
+
+  <div class="drawer-footer">
+    <button class="drawer-logout" id="drawerLogout">🚪 Log Out</button>
+  </div>
+</nav>
+
+<!-- Hamburger toggle button -->
+<button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu" aria-expanded="false">
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+</button>

@@ -1,0 +1,191 @@
+<!-- ===== PROFILE PAGE (Redesigned V3) ===== -->
+<div class="page" data-page="profile">
+  <div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-cover"></div>
+      <div class="profile-photo-section">
+        <div class="profile-photo-wrapper" id="profilePhotoWrapper">
+          <div class="profile-photo" id="profilePhoto">
+            <span class="profile-photo-placeholder" id="profilePhotoPlaceholder">🌱</span>
+            <img id="profilePhotoImg" src="" alt="Profile photo" style="display:none;">
+          </div>
+          <button class="profile-photo-edit" id="changeProfilePicBtn" aria-label="Change profile photo">📷</button>
+        </div>
+      </div>
+      
+      <div class="profile-info">
+        <h1 class="profile-name" id="profileName">Marvelous</h1>
+        <p class="profile-username" id="profileUsername">@username</p>
+        
+        <div class="profile-badges">
+          <span class="badge badge-level" id="profileLevel">🌱 Seed</span>
+          <span class="badge badge-plan" id="profilePlan">💎 Free Plan</span>
+        </div>
+        
+        <div class="profile-stats-row">
+          <div class="stat-item">
+            <span class="stat-value" id="profileXp">0</span>
+            <span class="stat-label">⭐ XP</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="profileStreak">0</span>
+            <span class="stat-label">🔥 Streak</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="profileGoals">0</span>
+            <span class="stat-label">🎯 Goals</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="profileAchievements">0</span>
+            <span class="stat-label">🏆 Achievements</span>
+          </div>
+        </div>
+        
+        <!-- XP Progress Bar -->
+        <div class="xp-progress-section">
+          <div class="xp-progress-bar">
+            <div class="xp-progress-fill" id="xpProgressFill" style="width:0%;"></div>
+          </div>
+          <p class="xp-progress-text" id="xpProgressText">0 / 100 XP until Sprout 🌱</p>
+        </div>
+        
+        <p class="profile-member-since" id="profileMemberSince">📅 Member since July 2026</p>
+      </div>
+    </div>
+
+    <!-- Profile Actions -->
+    <div class="profile-actions">
+      <button class="btn btn-outline" id="editUsernameBtn">✏️ Edit Username</button>
+      <button class="btn btn-outline" id="editBioBtn">📝 Edit Bio</button>
+      <button class="btn btn-outline" id="changeProfilePicBtn2">🖼 Change Photo</button>
+      <button class="btn btn-outline btn-danger" id="removeProfilePicBtn">🗑 Remove Photo</button>
+      <button class="btn btn-outline" id="customizeProfileBtn">🎨 Customize Profile</button>
+    </div>
+
+    <!-- About / Bio -->
+    <div class="profile-card">
+      <h3>📝 Bio</h3>
+      <p class="profile-bio" id="profileBio">"Building GroveGoals one feature at a time 🌳"</p>
+      <button class="btn btn-text" id="editBioBtn2">Edit Bio</button>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="profile-card">
+      <h3>📋 Personal Information</h3>
+      <div class="info-row">
+        <span>🎂 Age</span>
+        <span><strong id="profileAge">36</strong> <button class="btn btn-text btn-sm" id="editAgeBtn">Edit</button></span>
+      </div>
+      <div class="info-row">
+        <span>🌍 Country</span>
+        <span><strong id="profileCountry">🇳🇬 Nigeria</strong> <button class="btn btn-text btn-sm" id="changeCountryBtn">Change</button></span>
+      </div>
+      <div class="info-row">
+        <span>🗣 Language</span>
+        <span><strong id="profileLanguage">English</strong></span>
+      </div>
+      <div class="info-row">
+        <span>🕒 Time Zone</span>
+        <span><strong id="profileTimezone">Africa/Lagos</strong></span>
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="profile-card">
+      <h3>🔒 Privacy</h3>
+      <div class="toggle-row">
+        <span>Account Privacy</span>
+        <label class="toggle">
+          <input type="checkbox" id="accountPublicToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p class="privacy-note" id="privacyNote">✓ Anyone can visit your profile</p>
+    </div>
+
+    <!-- Visibility Toggles -->
+    <div class="profile-card">
+      <h3>👁 Visibility</h3>
+      <label class="toggle-row"><span>Show Online Status</span> <input type="checkbox" id="showOnlineToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Show XP</span> <input type="checkbox" id="showXpToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Show Achievements</span> <input type="checkbox" id="showAchievementsToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Show Current Goal</span> <input type="checkbox" id="showGoalToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Show Tree Growth</span> <input type="checkbox" id="showTreeToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Allow Friend Requests</span> <input type="checkbox" id="allowFriendRequestsToggle" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>Allow Profile Sharing</span> <input type="checkbox" id="allowSharingToggle" checked><span class="toggle-slider"></span></label>
+    </div>
+
+    <!-- Online Status -->
+    <div class="profile-card">
+      <h3>🟢 Online Status</h3>
+      <div class="status-options">
+        <label class="status-option"><input type="radio" name="onlineStatus" value="online" checked> 🟢 Online</label>
+        <label class="status-option"><input type="radio" name="onlineStatus" value="away"> 🟡 Away</label>
+        <label class="status-option"><input type="radio" name="onlineStatus" value="busy"> ⚪ Busy</label>
+        <label class="status-option"><input type="radio" name="onlineStatus" value="invisible"> 🌙 Invisible</label>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="profile-card">
+      <h3>🔔 Notifications</h3>
+      <label class="toggle-row"><span>📧 Welcome Email</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>📅 Daily Reminder</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>📊 Weekly Report</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>👥 Community Updates</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>👤 Friend Requests</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>✅ Goal Completed</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+      <label class="toggle-row"><span>🏆 Achievement Unlocked</span> <input type="checkbox" checked><span class="toggle-slider"></span></label>
+    </div>
+
+    <!-- Friends -->
+    <div class="profile-card">
+      <h3>👥 Friends</h3>
+      <p><strong id="friendCount">0</strong> Friends</p>
+      <div class="btn-group">
+        <button class="btn btn-primary btn-sm" id="addFriendBtn">➕ Add Friend</button>
+        <button class="btn btn-outline btn-sm" id="friendRequestsBtn">📨 Friend Requests</button>
+        <button class="btn btn-outline btn-sm" id="findFriendsBtn">👥 Find Friends</button>
+      </div>
+    </div>
+
+    <!-- Communities -->
+    <div class="profile-card">
+      <h3>🌍 Communities</h3>
+      <div class="community-list" id="profileCommunityList">
+        <span class="community-chip">💻 Learn Coding</span>
+        <span class="community-chip">📚 WAEC</span>
+        <span class="community-chip">🎥 Content Creators</span>
+        <span class="community-chip">💼 Entrepreneurs</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary btn-sm" id="createCommunityBtn">➕ Create Community</button>
+        <button class="btn btn-outline btn-sm" id="discoverCommunitiesBtn">🔍 Discover Communities</button>
+      </div>
+    </div>
+
+    <!-- Customization -->
+    <div class="profile-card">
+      <h3>🎨 Customization</h3>
+      <div class="customization-grid">
+        <button class="btn btn-outline btn-sm">🎨 Accent Color</button>
+        <button class="btn btn-outline btn-sm">🌄 Background</button>
+        <button class="btn btn-outline btn-sm">🖼 Banner Image</button>
+        <button class="btn btn-outline btn-sm">🌳 Tree Theme</button>
+        <button class="btn btn-outline btn-sm">🏅 Favorite Badge</button>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="profile-card">
+      <h3>🔐 Security</h3>
+      <button class="btn btn-outline btn-block" id="changePasswordBtn">🔑 Change Password</button>
+      <button class="btn btn-outline btn-block" id="changeEmailBtn">📧 Change Email</button>
+      <button class="btn btn-outline btn-block" id="downloadDataBtn">📥 Download My Data</button>
+      <button class="btn btn-outline btn-block" id="resetProgressBtn">🧹 Reset Progress</button>
+      <button class="btn btn-outline btn-block" id="logoutBtn2">🚪 Log Out</button>
+      <button class="btn btn-danger btn-block" id="deleteAccountBtn2">🗑 Delete Account</button>
+    </div>
+  </div>
+</div>

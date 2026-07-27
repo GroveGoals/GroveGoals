@@ -1,0 +1,24 @@
+<!-- Top header bar (mobile shows hamburger, desktop shows inline nav) -->
+<header class="top-header">
+  <div class="header-left">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+    <a href="#" class="header-logo" data-page="home">🌳 GroveGoals</a>
+  </div>
+  
+  <nav class="header-nav desktop-nav">
+    <a href="#" data-page="home" class="nav-link">Home</a>
+    <a href="#" data-page="explore" class="nav-link">Explore</a>
+    <a href="#" data-page="dashboard" class="nav-link">Dashboard</a>
+    <a href="#" data-page="aicoach" class="nav-link">AI Coach</a>
+    <a href="#" data-page="profile" class="nav-link">Profile</a>
+  </nav>
+
+  <div class="header-right">
+    <span class="xp-badge" id="headerXp">🌱 Seed · 0 XP</span>
+    <button class="btn btn-sm" id="authBtn">Sign up</button>
+  </div>
+</header>
