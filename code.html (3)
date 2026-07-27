@@ -1,0 +1,43 @@
+<!-- Hamburger Overlay -->
+<div id="hamOverlay" class="ham-overlay"></div>
+
+<!-- Side Drawer -->
+<nav id="hamDrawer" class="ham-drawer">
+  <div class="ham-header">
+    <span class="ham-brand">🌳 GroveGoals</span>
+    <button id="hamClose" class="ham-close">✕</button>
+  </div>
+
+  <div class="ham-user" id="hamUser">
+    <div class="ham-avatar" id="hamAvatar">🌱</div>
+    <div>
+      <div class="ham-name" id="hamName">Guest</div>
+      <div class="ham-status" id="hamStatus">🟢 Online</div>
+    </div>
+  </div>
+
+  <div class="ham-menu">
+    <a href="#" class="ham-link" data-page="home">🏠 Home</a>
+    <a href="#" class="ham-link" data-page="profile">👤 My Profile</a>
+    <a href="#" class="ham-link" data-page="goals">🌱 My Goals</a>
+    <a href="#" class="ham-link" data-page="aicoach">🤖 AI Coach</a>
+    <a href="#" class="ham-link" data-page="dashboard">📊 Dashboard</a>
+    <a href="#" class="ham-link" data-page="calendar">📅 Calendar</a>
+    <a href="#" class="ham-link" data-page="achievements">🏆 Achievements</a>
+    <a href="#" class="ham-link" data-page="communities">👥 Communities</a>
+    <a href="#" class="ham-link" data-page="explore">🔍 Explore Goals</a>
+    <a href="#" class="ham-link" data-page="resources">📚 Learning Resources</a>
+    <div class="ham-divider"></div>
+    <a href="#" class="ham-link" data-page="premium">💎 Upgrade to Premium</a>
+    <a href="#" class="ham-link" data-page="settings">⚙️ Settings</a>
+    <a href="#" class="ham-link" data-page="help">❓ Help & Support</a>
+    <a href="#" class="ham-link" data-page="contact">📩 Contact Us</a>
+  </div>
+
+  <div class="ham-footer">
+    <button id="hamLogout" class="ham-logout">🚪 Log Out</button>
+  </div>
+</nav>
+
+<!-- Hamburger Toggle Button -->
+<button id="hamToggle" class="ham-toggle" aria-label="Menu">☰</button>

@@ -1,0 +1,102 @@
+/* ===== HAMBURGER MENU ===== */
+.ham-toggle {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1001;
+  background: var(--forest);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(11,61,46,0.25);
+  transition: all 0.3s;
+}
+.ham-toggle:hover { background: var(--forest-deep); transform: scale(1.05); }
+
+.ham-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.ham-overlay.active { opacity: 1; pointer-events: auto; }
+
+.ham-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 290px;
+  max-width: 80vw;
+  height: 100vh;
+  background: var(--white);
+  z-index: 999;
+  transform: translateX(-110%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 30px rgba(0,0,0,0.18);
+  overflow-y: auto;
+}
+.ham-drawer.open { transform: translateX(0); }
+
+.ham-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.ham-brand { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; color: var(--forest-deep); }
+.ham-close {
+  background: none; border: none; font-size: 1.3rem; color: var(--ink-soft);
+  cursor: pointer; width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.ham-close:hover { background: rgba(11,61,46,0.08); color: var(--ink); }
+
+.ham-user {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px; border-bottom: 1px solid var(--line);
+}
+.ham-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--mint); display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+.ham-name { font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+.ham-status { font-size: 0.78rem; color: var(--ink-soft); margin-top: 2px; }
+
+.ham-menu { flex: 1; padding: 8px 0; overflow-y: auto; }
+.ham-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px; color: var(--ink); text-decoration: none;
+  font-size: 0.9rem; font-weight: 500; transition: all 0.15s;
+}
+.ham-link:hover { background: var(--canopy-light); color: var(--forest-deep); }
+.ham-divider { height: 1px; background: var(--line); margin: 6px 18px; }
+
+.ham-footer { padding: 14px 18px; border-top: 1px solid var(--line); }
+.ham-logout {
+  width: 100%; padding: 11px; background: none;
+  border: 1px solid var(--line); border-radius: 12px;
+  color: #B3261E; font-weight: 600; font-size: 0.9rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.ham-logout:hover { background: #FEE2E2; border-color: #B3261E; }
+
+/* Hide hamburger on large screens if your top nav is visible there */
+@media (min-width: 1024px) {
+  .ham-toggle { display: none; }
+  .ham-drawer { display: none; }
+  .ham-overlay { display: none; }
+}

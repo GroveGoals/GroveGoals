@@ -1,0 +1,89 @@
+/* ===== HAMBURGER MENU ===== */
+(function(){
+  const toggle = document.getElementById('hamToggle');
+  const drawer = document.getElementById('hamDrawer');
+  const overlay = document.getElementById('hamOverlay');
+  const closeBtn = document.getElementById('hamClose');
+  const logoutBtn = document.getElementById('hamLogout');
+
+  function openDrawer(){
+    drawer.classList.add('open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  if(toggle) toggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    drawer.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+
+  if(closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if(overlay) overlay.addEventListener('click', closeDrawer);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+  });
+
+  // Menu link clicks — navigate and close
+  document.querySelectorAll('.ham-link').forEach(function(link){
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      var page = this.getAttribute('data-page');
+      if(page && typeof navigateTo === 'function') navigateTo(page);
+      closeDrawer();
+    });
+  });
+
+  // Logout
+  if(logoutBtn){
+    logoutBtn.addEventListener('click', function(){
+      closeDrawer();
+      if(typeof state !== 'undefined' && state.user && state.user.loggedIn){
+        fetch('/logout', { method:'POST' }).then(function(){
+          state.user.loggedIn = false;
+          if(typeof syncNavState === 'function') syncNavState();
+          if(typeof toast === 'function') toast('Logged out.');
+          if(typeof navigateTo === 'function') navigateTo('home');
+        });
+      } else {
+        if(typeof openAuthModal === 'function') openAuthModal();
+      }
+    });
+  }
+
+  // Update drawer when user logs in/out
+  function updateDrawerUser(){
+    var nameEl = document.getElementById('hamName');
+    var avatarEl = document.getElementById('hamAvatar');
+    var statusEl = document.getElementById('hamStatus');
+    var user = (typeof state !== 'undefined' && state.user) ? state.user : {};
+
+    if(user.loggedIn && user.name){
+      nameEl.textContent = user.name;
+      avatarEl.innerHTML = user.name.charAt(0).toUpperCase();
+      var status = user.online_status || 'online';
+      var statusMap = {'online':'🟢 Online','away':'🟡 Away','busy':'⚪ Busy','invisible':'🌙 Invisible'};
+      statusEl.textContent = statusMap[status] || '🟢 Online';
+    } else {
+      nameEl.textContent = 'Guest';
+      avatarEl.innerHTML = '🌱';
+      statusEl.textContent = '🟢 Online';
+    }
+  }
+
+  // Hook into existing state sync if it exists
+  var origSync = typeof syncNavState === 'function' ? syncNavState : function(){};
+  window.syncNavState = function(){
+    origSync();
+    updateDrawerUser();
+  };
+
+  // Run on load
+  setTimeout(updateDrawerUser, 100);
+})();
