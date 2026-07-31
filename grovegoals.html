@@ -1,4 +1,218 @@
-<!-- REMOVED: grovegoals.html deleted by request on 2026-07-31
-     Original content removed and replaced with this notice.
-     If you need the original file restored, it can be recovered from the git history.
--->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroveGoals — Grow Your Goals Into Reality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;" rel="stylesheet">
+<style>
+:root{
+  --forest-deep:#0B3D2E;
+  --forest:#1E5631;
+  --sage:#7FB685;
+  --mint:#C9E8CE;
+  --canopy-light:#F5F9F3;
+  --gold:#E8B93E;
+  --ink:#122018;
+  --ink-soft:#4A5D52;
+  --white:#FFFFFF;
+  --line: rgba(11,61,46,0.12);
+  --shadow: 0 12px 32px rgba(11,61,46,0.12);
+  --radius: 18px;
+}
+:root[data-theme="dark"]{
+  --forest-deep:#0A2E22;
+  --forest:#2D6A4F;
+  --sage:#7FB685;
+  --mint:#1B4332;
+  --canopy-light:#0F1712;
+  --gold:#E8B93E;
+  --ink:#E8F3EC;
+  --ink-soft:#8FA69A;
+  --white:#182821;
+  --line: rgba(255,255,255,0.10);
+  --shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+:root[data-theme="dark"] .goal-card,
+:root[data-theme="dark"] .story-card,
+:root[data-theme="dark"] .price-card,
+:root[data-theme="dark"] .feature-card{ background:var(--white); }
+:root[data-theme="dark"] .cat-chip{ background:var(--white); }
+:root[data-theme="dark"] img{ opacity:0.92; }
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:var(--canopy-light);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+.mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+a{ color:inherit; }
+button{ font-family:inherit; cursor:pointer; }
+img,svg{ display:block; max-width:100%; }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ---------- Layout shells ---------- */
+.wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+.page{ display:none; }
+.page.active{ display:block; }
+.page[data-page="coach"].active{ display:flex; }
+.page[data-page="coach"]{ height:calc(100vh - 70px); }
+.coach-page-shell{ display:flex; flex-direction:column; height:100%; max-width:800px; margin:0 auto; width:100%; }
+.coach-page-header{ display:flex; align-items:center; gap:14px; padding:20px 24px; border-bottom:1px solid var(--line); flex-shrink:0; }
+.coach-page-header-icon{ width:44px; height:44px; border-radius:12px; background:var(--mint); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+.coach-page-header h1{ font-size:1.2rem; color:var(--forest-deep); font-family:'Fraunces',serif; }
+.coach-page-header p{ font-size:0.8rem; color:var(--ink-soft); margin-top:2px; }
+.coach-page-body{ flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+.coach-page-body .chat-msg{ max-width:78%; font-size:0.95rem; padding:13px 17px; }
+.coach-page-suggestions{ display:flex; flex-wrap:wrap; gap:8px; padding:0 24px 14px; flex-shrink:0; }
+.coach-page-input-row{ display:flex; gap:10px; padding:16px 24px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
+.coach-page-input-row input{ flex:1; border:1.5px solid var(--line); border-radius:999px; padding:13px 18px; font-family:inherit; font-size:0.95rem; background:var(--canopy-light); }
+.coach-page-input-row button{ background:var(--forest-deep); color:var(--white); border:none; border-radius:50%; width:46px; height:46px; flex-shrink:0; font-size:1.1rem; }
+@media (max-width:800px){ .page[data-page="coach"]{ height:calc(100vh - 66px); } }
+
+/* ---------- Nav ---------- */
+header.site-nav{
+  position:sticky; top:0; z-index:100;
+  background:rgba(245,249,243,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{ max-width:1180px; margin:0 auto; padding:16px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px;}
+.brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:700; font-size:1.25rem; color:var(--forest-deep); cursor:pointer; border:none; background:none; }
+.brand-mark{ width:34px; height:34px; }
+.nav-links{ display:flex; gap:28px; list-style:none; margin:0; padding:0; }
+.nav-links button{
+  background:none; border:none; font-size:0.95rem; font-weight:600; color:var(--ink-soft); padding:6px 2px; position:relative;
+}
+.nav-links button.active{ color:var(--forest-deep); }
+.nav-links button.active::after{ content:''; position:absolute; left:0; right:0; bottom:-4px; height:2px; background:var(--gold); border-radius:2px; }
+.nav-cta{ display:flex; align-items:center; gap:12px; }
+.hamburger{ display:none; flex-direction:column; gap:5px; background:none; border:none; padding:6px; }
+.hamburger span{ width:22px; height:2px; background:var(--forest-deep); border-radius:2px; transition:transform .2s ease, opacity .2s ease; }
+.hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity:0; }
+.hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.mobile-menu{ display:none; position:fixed; top:66px; left:0; right:0; bottom:0; background:var(--canopy-light); z-index:99; padding:20px 28px; overflow-y:auto; }
+.mobile-menu.open{ display:block; }
+.mobile-menu ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; }
+.mobile-menu button.mm-link{ width:100%; text-align:left; background:none; border:none; font-size:1.1rem; font-weight:700; color:var(--forest-deep); padding:16px 4px; border-bottom:1px solid var(--line); }
+.mm-settings{ margin-top:20px; padding-top:16px; border-top:2px solid var(--line); }
+.mm-settings-title{ font-family:'JetBrains Mono',monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:12px; }
+.mm-settings-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 2px; font-size:0.95rem; color:var(--ink); border-bottom:1px solid var(--line); }
+.mm-settings-link{ display:block; width:100%; text-align:left; background:none; border:none; font-size:0.9rem; font-weight:600; color:var(--ink); padding:14px 2px; border-bottom:1px solid var(--line); }
+@media (max-width:860px){
+  .nav-links{ display:none; }
+  .hamburger{ display:flex; }
+  /* The XP pill is redundant on mobile (shown on Dashboard + Profile) and,
+     combined with the auth button + hamburger, was wide enough to push the
+     hamburger off the edge of narrow screens — making it untappable.
+     !important because JS sets display:flex as an inline style on login. */
+  .pill-stat{ display:none !important; }
+}
+@media (max-width:420px){
+  .nav-inner{ padding:14px 16px; gap:8px; }
+  .brand{ font-size:1.05rem; gap:6px; }
+  .brand-mark{ width:28px; height:28px; }
+  #navAuthBtn{ padding:8px 12px; font-size:0.82rem; }
+}
+.pill-stat{
+  display:none;
+  align-items:center; gap:8px; background:var(--forest-deep); color:var(--mint);
+  padding:7px 14px; border-radius:999px; font-family:'JetBrains Mono',monospace; font-size:0.8rem;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border-radius:999px; padding:12px 24px; font-weight:700; font-size:0.95rem;
+  border:2px solid transparent; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:var(--forest-deep); color:var(--white); }
+.btn-primary:hover{ background:var(--forest); box-shadow:var(--shadow); }
+.btn-ghost{ background:transparent; color:var(--forest-deep); border-color:var(--forest-deep); }
+.btn-ghost:hover{ background:var(--forest-deep); color:var(--white); }
+.btn-gold{ background:var(--gold); color:var(--forest-deep); }
+.btn-gold:hover{ box-shadow:0 8px 20px rgba(232,185,62,0.4); }
+.btn-sm{ padding:9px 18px; font-size:0.85rem; }
+.btn[disabled]{ opacity:0.45; cursor:not-allowed; }
+
+/* ---------- Hero ---------- */
+.hero{ position:relative; overflow:hidden; padding:72px 0 40px; }
+.hero-grid{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center; }
+.eyebrow{ font-family:'JetBrains Mono',monospace; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--forest); background:var(--mint); display:inline-block; padding:6px 10px; border-radius:999px; }
+</style>
+</head>
+<script>
+  // Applied before paint so there's no flash of the wrong theme on load.
+  (function(){
+    try{
+      const saved = localStorage.getItem('grovegoals-theme');
+      if(saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    }catch(e){ /* localStorage unavailable — defaults to light, harmless */ }
+  })();
+</script>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <button class="brand" data-nav="home">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="#1E5631"/><path d="M20 30V17" stroke="#C9E8CE" stroke-width="2.4" stroke-linecap="round"/></svg>
+      GroveGoals
+    </button>
+    <ul class="nav-links">
+      <li><button data-nav="home" class="active">Home</button></li>
+      <li><button data-nav="explore">Explore Roadmaps</button></li>
+      <li><button data-nav="generator">Goal Generator</button></li>
+      <li><button data-nav="dashboard">Dashboard</button></li>
+      <li><button data-nav="coach" id="navAiCoachBtn">🌳 AI Coach</button></li>
+      <li><button data-nav="profile">Profile</button></li>
+    </ul>
+    <div class="nav-cta">
+      <div class="pill-stat" id="navXpPill"><span id="navLevelIcon">🌱</span> <span id="navLevelName">Seed</span> · <span id="navXpVal">0</span> XP<span id="navProBadge" style="display:none;color:var(--forest-deep);font-weight:700;margin-left:8px;">PRO</span></div>
+      <button class="btn btn-ghost btn-sm" id="navAuthBtn">Sign up</button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><button class="mm-link" data-nav="home">Home</button></li>
+      <li><button class="mm-link" data-nav="explore">Explore Roadmaps</button></li>
+      <li><button class="mm-link" data-nav="generator">Goal Generator</button></li>
+      <li><button class="mm-link" data-nav="dashboard">Dashboard</button></li>
+      <li><button class="mm-link" data-nav="coach" id="mmAiCoachBtn">🌳 AI Coach</button></li>
+      <li><button class="mm-link" data-nav="profile">Profile</button></li>
+    </ul>
+    <div class="mm-settings">
+      <div class="mm-settings-title">Settings</div>
+      <div class="mm-settings-row">
+        <span>🌓 Dark mode</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="mm-settings-row">
+        <span>📧 Email reminders</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="mmEmailRemindersToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</header>
+
+</body>
+</html>
