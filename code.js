@@ -1,39 +1,53 @@
-/* ===== HAMBURGER MENU FUNCTIONALITY ===== */
+/* ===== HAMBURGER / SIDE DRAWER (robust) ===== */
 (function() {
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const sideDrawer = document.getElementById('sideDrawer');
-  const navOverlay = document.getElementById('navOverlay');
-  const drawerClose = document.getElementById('drawerClose');
+  // Find the hamburger button (support several class/id variants)
+  const hamburgerBtn =
+    document.getElementById('hamburgerBtn') ||
+    document.querySelector('.hamburger') ||
+    document.querySelector('.hamburger-btn');
 
-  // Create overlay if not present
+  // Support two markup styles: "sideDrawer" (legacy) or "mobileMenu" (templates)
+  let sideDrawer = document.getElementById('sideDrawer') || document.getElementById('mobileMenu');
+
+  // Overlay and close button (may be absent)
+  let navOverlay = document.getElementById('navOverlay');
+  const drawerClose = document.getElementById('drawerClose') || null;
+
+  // Ensure overlay exists and assign it to navOverlay (fix the original bug)
   if (!navOverlay) {
     const overlay = document.createElement('div');
     overlay.className = 'nav-overlay';
     overlay.id = 'navOverlay';
     document.body.appendChild(overlay);
+    navOverlay = overlay;
   }
 
   function openDrawer() {
-    sideDrawer.classList.add('open');
-    navOverlay.classList.add('active');
-    hamburgerBtn.classList.add('active');
-    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    if (sideDrawer) sideDrawer.classList.add('open');
+    if (navOverlay) navOverlay.classList.add('active');
+    if (hamburgerBtn) {
+      // Template CSS toggles `.hamburger.open` (or `.hamburger-btn.open`)
+      hamburgerBtn.classList.add('open');
+      hamburgerBtn.setAttribute('aria-expanded', 'true');
+    }
     document.body.style.overflow = 'hidden'; // prevent background scroll
   }
 
   function closeDrawer() {
-    sideDrawer.classList.remove('open');
-    navOverlay.classList.remove('active');
-    hamburgerBtn.classList.remove('active');
-    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    if (sideDrawer) sideDrawer.classList.remove('open');
+    if (navOverlay) navOverlay.classList.remove('active');
+    if (hamburgerBtn) {
+      hamburgerBtn.classList.remove('open');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    }
     document.body.style.overflow = '';
   }
 
-  // Hamburger button click
+  // Hamburger click: toggle
   if (hamburgerBtn) {
     hamburgerBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (sideDrawer.classList.contains('open')) {
+      if (sideDrawer && sideDrawer.classList.contains('open')) {
         closeDrawer();
       } else {
         openDrawer();
@@ -41,77 +55,86 @@
     });
   }
 
-  // Close button
+  // Close button (if present)
   if (drawerClose) {
     drawerClose.addEventListener('click', closeDrawer);
   }
 
-  // Overlay click (tap outside)
+  // Overlay click: close
   if (navOverlay) {
     navOverlay.addEventListener('click', closeDrawer);
   }
 
-  // Escape key
+  // Escape key to close
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && sideDrawer.classList.contains('open')) {
+    if (e.key === 'Escape' && sideDrawer && sideDrawer.classList.contains('open')) {
       closeDrawer();
     }
   });
 
-  // Close drawer when a nav link is clicked
-  document.querySelectorAll('.drawer-link').forEach(function(link) {
+  // Attach to both drawer-link (old) and mm-link (templates)
+  document.querySelectorAll('.drawer-link, .mm-link').forEach(function(link) {
     link.addEventListener('click', function(e) {
-      const page = this.getAttribute('data-page');
-      if (page) {
-        // Navigate to the page/section
-        navigateTo(page);
+      // prevent default if it's an anchor
+      if (this.tagName.toLowerCase() === 'a') e.preventDefault();
+      // try data attributes used across templates
+      const page = this.getAttribute('data-page') || this.dataset.nav;
+      if (page && typeof window.navigateTo === 'function') {
+        try { navigateTo(page); } catch (err) { /* ignore navigation errors */ }
       }
       closeDrawer();
     });
   });
 
-  // Logout button
-  const logoutBtn = document.getElementById('drawerLogout');
+  // Logout: support drawerLogout (old) or mmLogout (possible alternative)
+  const logoutBtn = document.getElementById('drawerLogout') || document.getElementById('mmLogout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function() {
       closeDrawer();
-      if (state.user.loggedIn) {
-        fetch('/logout', { method: 'POST' }).then(function() {
-          state.user.loggedIn = false;
-          syncNavState();
-          navigateTo('home');
-          toast('Logged out.');
-        });
+      try {
+        if (window.state && state.user && state.user.loggedIn) {
+          fetch('/logout', { method: 'POST' }).then(function() {
+            state.user.loggedIn = false;
+            if (typeof window.syncNavState === 'function') syncNavState();
+            if (typeof window.navigateTo === 'function') navigateTo('home');
+            if (typeof window.toast === 'function') toast('Logged out.');
+          });
+        }
+      } catch (err) {
+        // swallow errors so logout won't break UI
+        console.error('Logout handler error', err);
       }
     });
   }
 
-  // Sync drawer state with user
+  // Sync drawer state with user (guarded)
   window.syncNavState = function() {
-    const nameEl = document.getElementById('drawerName');
-    const avatarEl = document.getElementById('drawerAvatar');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
+    try {
+      const nameEl = document.getElementById('drawerName') || document.getElementById('drawerName') || document.querySelector('.drawer-name');
+      const avatarEl = document.getElementById('drawerAvatar') || document.querySelector('.drawer-avatar');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
 
-    if (state.user.loggedIn && state.user.name) {
-      nameEl.textContent = state.user.name;
-      avatarEl.textContent = state.user.name.charAt(0).toUpperCase();
-    } else {
-      nameEl.textContent = 'Guest';
-      avatarEl.textContent = '🌱';
-    }
+      if (window.state && state.user && state.user.loggedIn && state.user.name) {
+        if (nameEl) nameEl.textContent = state.user.name;
+        if (avatarEl) avatarEl.textContent = state.user.name.charAt(0).toUpperCase();
+      } else {
+        if (nameEl) nameEl.textContent = 'Guest';
+        if (avatarEl) avatarEl.textContent = '🌱';
+      }
 
-    // Update online status
-    const status = state.user.online_status || 'online';
-    if (statusDot) {
-      statusDot.className = 'status-dot ' + status;
-    }
-    if (statusText) {
-      statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+      const status = (state && state.user && state.user.online_status) ? state.user.online_status : 'online';
+      if (statusDot) statusDot.className = 'status-dot ' + status;
+      if (statusText) statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    } catch (err) {
+      // keep syncNavState safe
+      console.error('syncNavState error', err);
     }
   };
 
-  // Call syncNavState after state changes
-  const originalScheduleSave = window.scheduleSaveState;
-  window.syncNavState();
+  // Initialize
+  try {
+    if (typeof window.syncNavState === 'function') window.syncNavState();
+  } catch (e) { /* ignore */ }
+
 })();
