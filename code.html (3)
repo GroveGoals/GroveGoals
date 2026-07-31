@@ -34,6 +34,15 @@
     <a href="#" class="ham-link" data-page="contact">📩 Contact Us</a>
   </div>
 
+  <!-- Theme toggle: Light / Dark -->
+  <div class="ham-setting" style="padding:12px 18px; border-top:1px solid var(--line);">
+    <label class="toggle-row" title="Toggle light / dark theme">
+      <span>🌙 Dark mode</span>
+      <input type="checkbox" id="hamDarkToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
   <div class="ham-footer">
     <button id="hamLogout" class="ham-logout">🚪 Log Out</button>
   </div>
